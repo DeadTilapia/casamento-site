@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alexandre & Alice — 02 de Novembro de 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-blush-canvas: #f7f2fa;
+    --color-ink-navy: #3a2e4d;
+    --color-coral-vermillion: #a084c4;
+    --color-dusty-peach: #fceea8;
+    --color-forest-ink: #4f6b48;
+    --color-olive-grove: #a9c0a0;
+    --color-mustard-bloom: #fceea8;
+    --color-ember-orange: #c9b7de;
+    --color-sage-mist: #d8e3d3;
+    --color-pure-white: #ffffff;
+
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+
+    --radius-full: 200px;
+    --section-gap: 80px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--color-blush-canvas);
+    color: var(--color-ink-navy);
+    font-family: var(--font-body);
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* NAV */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding: 32px 24px;
+    flex-wrap: wrap;
+  }
+  nav a {
+    color: var(--color-ink-navy);
+    text-decoration: none;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 400;
+    padding: 8px 4px;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+  nav a:hover, nav a:focus-visible {
+    border-bottom-color: var(--color-coral-vermillion);
+    outline: none;
+  }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 64px 24px 96px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-eyebrow {
+    font-size: 15px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-ink-navy);
+    margin-bottom: 40px;
+  }
+  .hero-names {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(56px, 12vw, 120px);
+    line-height: 0.85;
+    letter-spacing: -0.01em;
+  }
+  .hero-amp {
+    color: var(--color-coral-vermillion);
+    display: inline-block;
+    padding: 0 16px;
+    font-style: italic;
+  }
+  .hero-sub {
+    margin-top: 40px;
+    font-size: 20px;
+    font-weight: 300;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* BOTANICAL DIVIDER */
+  .divider {
+    width: 100%;
+    height: 48px;
+    display: block;
+  }
+
+  /* STORY */
+  .story {
+    padding: var(--section-gap) 24px;
+    text-align: center;
+  }
+  .story-label {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-coral-vermillion);
+    margin-bottom: 24px;
+  }
+  .story-heading {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 36px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 32px;
+  }
+  .story-body {
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1.8;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  /* FUN FACTS GRID */
+  .facts {
+    padding: var(--section-gap) 24px;
+    text-align: center;
+  }
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    max-width: 900px;
+    margin: 48px auto 0;
+  }
+  .fact-card {
+    background: var(--color-pure-white);
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .fact-icon {
+    width: 56px;
+    height: 56px;
+    stroke: var(--color-ink-navy);
+    fill: none;
+    stroke-width: 1.3;
+  }
+  .fact-label {
+    font-size: 14px;
+    letter-spacing: 0.05em;
+  }
+  @media (max-width: 640px) {
+    .facts-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* RSVP */
+  .rsvp {
+    padding: var(--section-gap) 24px;
+    text-align: center;
+    background: var(--color-dusty-peach);
+  }
+  .rsvp-heading {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 300;
+    margin-bottom: 20px;
+  }
+  .rsvp-sub {
+    font-size: 18px;
+    margin-bottom: 40px;
+  }
+  .btn-outline {
+    display: inline-block;
+    border: 1.5px solid var(--color-coral-vermillion);
+    color: var(--color-coral-vermillion);
+    background: transparent;
+    padding: 14px 40px;
+    border-radius: var(--radius-full);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .btn-outline:hover, .btn-outline:focus-visible {
+    background: var(--color-coral-vermillion);
+    color: var(--color-pure-white);
+    outline: none;
+  }
+
+  /* DETAILS */
+  .details {
+    padding: var(--section-gap) 24px;
+    text-align: center;
+  }
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    max-width: 700px;
+    margin: 48px auto 0;
+    text-align: left;
+  }
+  .detail-item h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  .detail-item p {
+    font-size: 16px;
+    line-height: 2;
+  }
+  @media (max-width: 560px) {
+    .details-grid { grid-template-columns: 1fr; }
+  }
+
+  footer {
+    text-align: center;
+    padding: 56px 24px;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-ink-navy);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#inicio">Início</a>
+  <a href="#historia">Nossa História</a>
+  <a href="#detalhes">Detalhes</a>
+  <a href="#rsvp">RSVP</a>
+</nav>
+
+<section class="hero" id="inicio">
+  <div class="hero-eyebrow">02 de Novembro de 2027 · Ribeirão Preto</div>
+  <h1 class="hero-names">Alexandre<span class="hero-amp">&amp;</span>Alice</h1>
+  <p class="hero-sub">Estamos nos casando e adoraríamos muito ter você com a gente nesse dia.</p>
+</section>
+
+<svg class="divider" viewBox="0 0 1200 48" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0 24 Q 300 0 600 24 T 1200 24" stroke="#c9b7de" stroke-width="1.5" fill="none"/>
+</svg>
+
+<section class="story" id="historia">
+  <div class="story-label">Nossa história</div>
+  <h2 class="story-heading">Como tudo começou</h2>
+  <p class="story-body">
+    Aqui entra o texto contando como vocês se conheceram — pode ser um parágrafo curto e afetuoso,
+    do jeito que vocês contariam pra um amigo. Esse é só um texto de exemplo pra você ver como fica
+    o espaçamento e a tipografia; troque por sua própria história antes de publicar.
+  </p>
+</section>
+
+<section class="facts">
+  <div class="story-label">Curiosidades</div>
+  <h2 class="story-heading">Sobre nós</h2>
+  <div class="facts-grid">
+    <div class="fact-card">
+      <svg class="fact-icon" viewBox="0 0 64 64"><circle cx="32" cy="24" r="14"/><path d="M12 54c4-12 12-18 20-18s16 6 20 18"/></svg>
+      <span class="fact-label">Se conheceram em 2019</span>
+    </div>
+    <div class="fact-card">
+      <svg class="fact-icon" viewBox="0 0 64 64"><path d="M32 54s-20-12-20-28a12 12 0 0 1 20-9 12 12 0 0 1 20 9c0 16-20 28-20 28z"/></svg>
+      <span class="fact-label">Noivado em 2025</span>
+    </div>
+    <div class="fact-card">
+      <svg class="fact-icon" viewBox="0 0 64 64"><rect x="14" y="20" width="36" height="30" rx="1"/><path d="M14 28h36M22 20v-6M42 20v-6"/></svg>
+      <span class="fact-label">Data marcada</span>
+    </div>
+    <div class="fact-card">
+      <svg class="fact-icon" viewBox="0 0 64 64"><path d="M32 10v44M14 32c0-10 8-18 18-18s18 8 18 18-8 18-18 18-18-8-18-18z"/></svg>
+      <span class="fact-label">Ribeirão Preto, SP</span>
+    </div>
+  </div>
+</section>
+
+<section class="details" id="detalhes">
+  <div class="story-label">Informações</div>
+  <h2 class="story-heading">Detalhes do dia</h2>
+  <div class="details-grid">
+    <div class="detail-item">
+      <h3>Cerimônia</h3>
+      <p>16h00<br>Nome do local<br>Endereço completo aqui</p>
+    </div>
+    <div class="detail-item">
+      <h3>Recepção</h3>
+      <p>19h00<br>Nome do local<br>Endereço completo aqui</p>
+    </div>
+    <div class="detail-item">
+      <h3>Traje</h3>
+      <p>Esporte fino<br>Tons terrosos são bem-vindos</p>
+    </div>
+    <div class="detail-item">
+      <h3>Presentes</h3>
+      <p>Sua presença é o presente mais importante.<br>Lista disponível no RSVP.</p>
+    </div>
+  </div>
+</section>
+
+<section class="rsvp" id="rsvp">
+  <h2 class="rsvp-heading">Confirme presença</h2>
+  <p class="rsvp-sub">Contamos com você — confirme até 01 de outubro de 2027.</p>
+  <a href="#" class="btn-outline">Confirmar RSVP</a>
+</section>
+
+<footer>Alexandre &amp; Alice · 02 · 11 · 2027</footer>
+
+</body>
+</html>
