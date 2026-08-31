@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Alexandre & Alice — 02 de Novembro de 2027</title>
+<title>Alexandre & Alice — 01 de Novembro de 2027</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -247,6 +247,43 @@
     color: var(--color-ink-navy);
   }
 
+  /* MENSAGENS */
+  .messages {
+    padding: var(--section-gap) 24px;
+    text-align: center;
+  }
+  .messages-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 900px;
+    margin: 48px auto 0;
+    text-align: left;
+  }
+  .message-card {
+    background: var(--color-pure-white);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .message-text {
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .message-author {
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-coral-vermillion);
+  }
+  .messages-empty {
+    font-size: 15px;
+    opacity: 0.6;
+  }
+  @media (max-width: 720px) {
+    .messages-grid { grid-template-columns: 1fr; }
+  }
+
   /* RSVP MODAL */
   .modal-overlay {
     display: none;
@@ -393,11 +430,12 @@
   <a href="#inicio">Início</a>
   <a href="#historia">Nossa História</a>
   <a href="#detalhes">Detalhes</a>
+  <a href="#mensagens">Mensagens</a>
   <a href="#rsvp">RSVP</a>
 </nav>
 
 <section class="hero" id="inicio">
-  <div class="hero-eyebrow">02 de Novembro de 2027 · Ribeirão Preto</div>
+  <div class="hero-eyebrow">01 de Novembro de 2027 · São Carlos</div>
   <h1 class="hero-names">Alexandre<span class="hero-amp">&amp;</span>Alice</h1>
   <p class="hero-sub">Estamos nos casando e adoraríamos muito ter você com a gente nesse dia.</p>
 </section>
@@ -434,7 +472,7 @@
     </div>
     <div class="fact-card">
       <svg class="fact-icon" viewBox="0 0 64 64"><path d="M32 10v44M14 32c0-10 8-18 18-18s18 8 18 18-8 18-18 18-18-8-18-18z"/></svg>
-      <span class="fact-label">Ribeirão Preto, SP</span>
+      <span class="fact-label">São Carlos, SP</span>
     </div>
   </div>
 </section>
@@ -466,6 +504,14 @@
   <h2 class="rsvp-heading">Confirme presença</h2>
   <p class="rsvp-sub">Contamos com você — confirme até 01 de outubro de 2027.</p>
   <button class="btn-outline" onclick="abrirRSVP()">Confirmar RSVP</button>
+</section>
+
+<section class="messages" id="mensagens">
+  <div class="story-label">Recadinhos</div>
+  <h2 class="story-heading">Mensagens para os noivos</h2>
+  <div class="messages-grid" id="messagesGrid">
+    <p class="messages-empty">Carregando mensagens...</p>
+  </div>
 </section>
 
 <div class="modal-overlay" id="rsvpModal">
@@ -512,7 +558,7 @@
   </div>
 </div>
 
-<footer>Alexandre &amp; Alice · 02 · 11 · 2027</footer>
+<footer>Alexandre &amp; Alice · 01 · 11 · 2027</footer>
 
 <script>
   // --- Conexão com o Supabase ---
@@ -521,6 +567,31 @@
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let presenteSelecionado = null;
+
+  async function carregarMensagens() {
+    const grid = document.getElementById('messagesGrid');
+    const { data, error } = await sb
+      .from('mensagens_publicas')
+      .select('nome_convidado, mensagem, criado_em')
+      .order('criado_em', { ascending: false });
+
+    if (error || !data || data.length === 0) {
+      grid.innerHTML = '<p class="messages-empty">Ainda não há mensagens por aqui. Seja o primeiro a deixar um recadinho!</p>';
+      return;
+    }
+
+    grid.innerHTML = '';
+    data.forEach(m => {
+      const card = document.createElement('div');
+      card.className = 'message-card';
+      card.innerHTML = `
+        <div class="message-text">${m.mensagem}</div>
+        <div class="message-author">${m.nome_convidado}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+  carregarMensagens();
 
   function abrirRSVP() {
     document.getElementById('rsvpModal').classList.add('open');
@@ -647,6 +718,7 @@
     document.getElementById('nomeConfirmado').textContent = nome;
     document.getElementById('step3').classList.remove('active');
     document.getElementById('step4').classList.add('active');
+    if (mensagem) carregarMensagens();
   }
 </script>
 
