@@ -284,54 +284,71 @@
     .messages-grid { grid-template-columns: 1fr; }
   }
 
-  /* RSVP MODAL */
-  .modal-overlay {
+  /* RSVP — FLUXO EM TELA CHEIA */
+  .rsvp-flow {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(58, 46, 77, 0.45);
+    background: var(--color-blush-canvas);
+    color: var(--color-ink-navy);
     z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-box {
-    background: var(--color-pure-white);
-    border-radius: 24px;
-    max-width: 480px;
-    width: 100%;
-    max-height: 90vh;
     overflow-y: auto;
-    padding: 40px 32px;
-    position: relative;
   }
-  .modal-close {
-    position: absolute;
-    top: 16px;
-    right: 20px;
+  .rsvp-flow.open { display: block; }
+
+  .flow-topbar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: var(--color-blush-canvas);
+    border-bottom: 1px solid var(--color-sage-mist);
+    z-index: 3;
+  }
+  .flow-brand {
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: 0.02em;
+  }
+  .flow-close {
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 30px;
+    line-height: 1;
     color: var(--color-ink-navy);
     cursor: pointer;
-    line-height: 1;
+    padding: 0 4px;
   }
-  .modal-step { display: none; }
-  .modal-step.active { display: block; }
-  .modal-eyebrow {
+
+  .flow-step { display: none; padding: 44px 24px 56px; }
+  .flow-step.active { display: block; }
+
+  .flow-narrow { max-width: 460px; margin: 0 auto; text-align: center; }
+  .flow-wide { max-width: 1080px; margin: 0 auto; }
+
+  .flow-eyebrow {
     font-size: 12px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--color-coral-vermillion);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
-  .modal-title {
+  .flow-title {
     font-family: var(--font-display);
-    font-size: 30px;
+    font-size: clamp(28px, 6vw, 42px);
     font-weight: 400;
-    margin-bottom: 24px;
+    line-height: 1.1;
+    margin-bottom: 12px;
   }
+  .flow-lead {
+    font-size: 16px;
+    opacity: 0.8;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
   .modal-input, .modal-textarea {
     width: 100%;
     padding: 14px 16px;
@@ -341,9 +358,10 @@
     font-size: 16px;
     font-weight: 300;
     color: var(--color-ink-navy);
-    background: var(--color-blush-canvas);
+    background: var(--color-pure-white);
+    text-align: left;
   }
-  .modal-textarea { resize: vertical; min-height: 90px; }
+  .modal-textarea { resize: vertical; min-height: 110px; }
   .modal-input:focus, .modal-textarea:focus {
     outline: none;
     border-color: var(--color-coral-vermillion);
@@ -379,46 +397,93 @@
     cursor: pointer;
     margin-top: 14px;
   }
-  .gift-list {
+
+  /* GRID DE PRESENTES (tela própria) */
+  .gifts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 480px) {
+    .gifts-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  }
+  .gifts-grid > p { grid-column: 1 / -1; opacity: 0.7; }
+  .gift2 {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    max-height: 320px;
-    overflow-y: auto;
-  }
-  .gift-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    border: 1.5px solid var(--color-sage-mist);
-    border-radius: 12px;
+    background: var(--color-pure-white);
+    border: 2px solid transparent;
+    border-radius: 18px;
+    overflow: hidden;
     cursor: pointer;
     text-align: left;
-    background: var(--color-blush-canvas);
+    font-family: var(--font-body);
+    color: var(--color-ink-navy);
+    padding: 0;
+    transition: border-color 0.15s ease, transform 0.15s ease;
   }
-  .gift-card.selected {
-    border-color: var(--color-coral-vermillion);
-    background: #f3ebfa;
+  .gift2:hover { transform: translateY(-2px); }
+  .gift2.selected { border-color: var(--color-coral-vermillion); }
+  .gift2.taken { opacity: 0.45; cursor: not-allowed; }
+  .gift2.taken:hover { transform: none; }
+  .gift2-thumb {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: var(--color-sage-mist);
+    display: block;
   }
-  .gift-card.taken {
-    opacity: 0.4;
-    cursor: not-allowed;
+  .gift2-thumb-ph {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #efe6f6, #e7efe3);
   }
-  .gift-name { font-weight: 500; font-size: 15px; }
-  .gift-desc { font-size: 13px; opacity: 0.7; }
-  .gift-status {
+  .gift2-thumb-ph svg {
+    width: 42px; height: 42px;
+    stroke: var(--color-coral-vermillion);
+    fill: none; stroke-width: 1.3;
+  }
+  .gift2-body {
+    padding: 14px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+  .gift2-name { font-weight: 500; font-size: 15px; }
+  .gift2-desc { font-size: 13px; opacity: 0.7; line-height: 1.5; }
+  .gift2-tag {
+    margin-top: auto;
+    padding-top: 6px;
     font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-forest-ink);
-    white-space: nowrap;
   }
+  .gift2-tag.livre { color: var(--color-forest-ink); }
+  .gift2-tag.pego { color: var(--color-ink-navy); opacity: 0.6; }
+
+  .flow-actions {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 24px calc(18px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--color-blush-canvas) 65%, rgba(247,242,250,0));
+  }
+  .flow-actions .btn-solid,
+  .flow-actions .btn-text { margin-top: 0; }
+  .flow-actions .btn-text { display: inline-block; }
+
   .modal-error {
     color: #b3261e;
     font-size: 14px;
-    margin-top: 12px;
+    margin-bottom: 16px;
     display: none;
   }
   .modal-error.show { display: block; }
@@ -501,9 +566,9 @@
 </section>
 
 <section class="rsvp" id="rsvp">
-  <h2 class="rsvp-heading">Confirme presença</h2>
-  <p class="rsvp-sub">Contamos com você — confirme até 01 de outubro de 2027.</p>
-  <button class="btn-outline" onclick="abrirRSVP()">Confirmar RSVP</button>
+  <h2 class="rsvp-heading">Vem com a gente?</h2>
+  <p class="rsvp-sub">Confirme sua presença até 01 de outubro de 2027 — leva menos de um minuto.</p>
+  <button class="btn-outline" onclick="abrirRSVP()">Confirmar presença</button>
 </section>
 
 <section class="messages" id="mensagens">
@@ -514,47 +579,60 @@
   </div>
 </section>
 
-<div class="modal-overlay" id="rsvpModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="fecharRSVP()" aria-label="Fechar">&times;</button>
+<div class="rsvp-flow" id="rsvpModal">
+  <div class="flow-topbar">
+    <span class="flow-brand">Alexandre &amp; Alice</span>
+    <button class="flow-close" onclick="fecharRSVP()" aria-label="Fechar">&times;</button>
+  </div>
 
-    <!-- ETAPA 1: NOME -->
-    <div class="modal-step active" id="step1">
-      <div class="modal-eyebrow">Etapa 1 de 3</div>
-      <h3 class="modal-title">Qual é o seu nome?</h3>
-      <input type="text" class="modal-input" id="inputNome" placeholder="Nome como está no convite">
-      <button class="btn-solid" onclick="irParaStep2()">Próximo</button>
+  <!-- ETAPA 1: NOME -->
+  <div class="flow-step active" id="step1">
+    <div class="flow-narrow">
+      <div class="flow-eyebrow">Confirmação de presença</div>
+      <h3 class="flow-title">Que alegria que você vem!</h3>
+      <p class="flow-lead">Pra começar, nos conta quem é você.</p>
+      <input type="text" class="modal-input" id="inputNome" placeholder="Seu nome (como está no convite)">
+      <button class="btn-solid" onclick="irParaStep2()">Continuar</button>
     </div>
+  </div>
 
-    <!-- ETAPA 2: PRESENTE -->
-    <div class="modal-step" id="step2">
-      <div class="modal-eyebrow">Etapa 2 de 3</div>
-      <h3 class="modal-title">Escolha um presente</h3>
-      <div class="gift-list" id="giftList">
+  <!-- ETAPA 2: PRESENTES (tela própria) -->
+  <div class="flow-step" id="step2">
+    <div class="flow-wide">
+      <div class="flow-eyebrow">Lista de presentes</div>
+      <h3 class="flow-title">Escolha um presente pra gente</h3>
+      <p class="flow-lead">Cada presente pode ser escolhido por uma só pessoa. Toque no que você quiser dar — sem pressão, sua presença já é o maior presente.</p>
+      <div class="modal-error" id="giftError">Ah, alguém escolheu esse presente antes de você. Dá uma olhada nos que ainda estão livres. 💛</div>
+      <div class="gifts-grid" id="giftList">
         <p>Carregando presentes...</p>
       </div>
-      <div class="modal-error" id="giftError">Esse presente acabou de ser escolhido por outra pessoa. Escolha outro da lista.</div>
-      <button class="btn-solid" id="btnStep2" onclick="irParaStep3()" disabled>Próximo</button>
-      <button class="btn-text" onclick="voltarParaStep1()">Voltar</button>
     </div>
+    <div class="flow-actions">
+      <button class="btn-text" onclick="voltarParaStep1()">Voltar</button>
+      <button class="btn-solid" id="btnStep2" onclick="irParaStep3()" disabled>Continuar</button>
+    </div>
+  </div>
 
-    <!-- ETAPA 3: MENSAGEM -->
-    <div class="modal-step" id="step3">
-      <div class="modal-eyebrow">Etapa 3 de 3</div>
-      <h3 class="modal-title">Deixe uma mensagem (opcional)</h3>
+  <!-- ETAPA 3: MENSAGEM -->
+  <div class="flow-step" id="step3">
+    <div class="flow-narrow">
+      <div class="flow-eyebrow">Quase lá</div>
+      <h3 class="flow-title">Deixe um recadinho</h3>
+      <p class="flow-lead">É opcional, mas a gente vai adorar ler. 💜</p>
       <textarea class="modal-textarea" id="inputMensagem" placeholder="Um recadinho pros noivos..."></textarea>
       <button class="btn-solid" id="btnConfirmar" onclick="enviarConfirmacao()">Confirmar presença</button>
       <button class="btn-text" onclick="voltarParaStep2()">Voltar</button>
     </div>
+  </div>
 
-    <!-- ETAPA 4: SUCESSO -->
-    <div class="modal-step" id="step4">
-      <div class="modal-eyebrow">Tudo certo</div>
-      <h3 class="modal-title">Presença confirmada!</h3>
-      <p style="font-size:16px;">Obrigado por confirmar, <span id="nomeConfirmado"></span>. Mal podemos esperar pra celebrar com você. 💜</p>
+  <!-- ETAPA 4: SUCESSO -->
+  <div class="flow-step" id="step4">
+    <div class="flow-narrow">
+      <div class="flow-eyebrow">Presença confirmada</div>
+      <h3 class="flow-title">Viva! Já é oficial 🎉</h3>
+      <p style="font-size:17px; line-height:1.7;">Obrigado, <span id="nomeConfirmado"></span>! Ficamos muito felizes em saber que você vai estar com a gente nesse dia. Já estamos contando os dias — até 01 de novembro! 💜</p>
       <button class="btn-solid" onclick="fecharRSVP()">Fechar</button>
     </div>
-
   </div>
 </div>
 
@@ -595,16 +673,27 @@
 
   function abrirRSVP() {
     document.getElementById('rsvpModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
     resetarModal();
   }
 
   function fecharRSVP() {
     document.getElementById('rsvpModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') fecharRSVP();
+  });
+
+  function mostrarStep(id) {
+    ['step1','step2','step3','step4'].forEach(s => document.getElementById(s).classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById('rsvpModal').scrollTo(0, 0);
   }
 
   function resetarModal() {
-    ['step1','step2','step3','step4'].forEach(id => document.getElementById(id).classList.remove('active'));
-    document.getElementById('step1').classList.add('active');
+    mostrarStep('step1');
     document.getElementById('inputNome').value = '';
     document.getElementById('inputMensagem').value = '';
     presenteSelecionado = null;
@@ -615,15 +704,13 @@
   function irParaStep2() {
     const nome = document.getElementById('inputNome').value.trim();
     if (!nome) { alert('Por favor, digite seu nome.'); return; }
-    document.getElementById('step1').classList.remove('active');
-    document.getElementById('step2').classList.add('active');
+    mostrarStep('step2');
     carregarPresentes();
   }
 
-  function voltarParaStep1() {
-    document.getElementById('step2').classList.remove('active');
-    document.getElementById('step1').classList.add('active');
-  }
+  function voltarParaStep1() { mostrarStep('step1'); }
+  function irParaStep3() { mostrarStep('step3'); }
+  function voltarParaStep2() { mostrarStep('step2'); }
 
   async function carregarPresentes() {
     const lista = document.getElementById('giftList');
@@ -631,26 +718,65 @@
 
     const { data, error } = await sb
       .from('presentes')
-      .select('id, nome, descricao, escolhido')
+      .select('*')
       .order('nome');
 
     if (error) {
       lista.innerHTML = '<p>Não foi possível carregar a lista agora. Tente novamente em instantes.</p>';
       return;
     }
+    if (!data || data.length === 0) {
+      lista.innerHTML = '<p>A lista de presentes ainda está sendo preparada com carinho. Volte em breve! 💛</p>';
+      return;
+    }
 
     lista.innerHTML = '';
     data.forEach(presente => {
-      const card = document.createElement('div');
-      card.className = 'gift-card' + (presente.escolhido ? ' taken' : '');
-      card.innerHTML = `
-        <div>
-          <div class="gift-name">${presente.nome}</div>
-          ${presente.descricao ? `<div class="gift-desc">${presente.descricao}</div>` : ''}
-        </div>
-        <div class="gift-status">${presente.escolhido ? 'Já escolhido' : ''}</div>
-      `;
-      if (!presente.escolhido) {
+      const imagem = presente.imagem_url || presente.imagem || presente.foto_url || presente.image_url || '';
+
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'gift2' + (presente.escolhido ? ' taken' : '');
+
+      if (imagem) {
+        const img = document.createElement('img');
+        img.className = 'gift2-thumb';
+        img.loading = 'lazy';
+        img.alt = presente.nome || 'Presente';
+        img.src = imagem;
+        card.appendChild(img);
+      } else {
+        const ph = document.createElement('div');
+        ph.className = 'gift2-thumb-ph';
+        ph.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="24" width="40" height="30" rx="2"/><path d="M12 34h40M32 24v30M32 24c-7-11-19-6-15 3 3 6 15 -3 15 -3zm0 0c7-11 19-6 15 3-3 6-15 -3-15 -3z"/></svg>';
+        card.appendChild(ph);
+      }
+
+      const body = document.createElement('div');
+      body.className = 'gift2-body';
+
+      const nome = document.createElement('div');
+      nome.className = 'gift2-name';
+      nome.textContent = presente.nome || 'Presente';
+      body.appendChild(nome);
+
+      if (presente.descricao) {
+        const desc = document.createElement('div');
+        desc.className = 'gift2-desc';
+        desc.textContent = presente.descricao;
+        body.appendChild(desc);
+      }
+
+      const tag = document.createElement('div');
+      tag.className = 'gift2-tag ' + (presente.escolhido ? 'pego' : 'livre');
+      tag.textContent = presente.escolhido ? 'Já escolhido' : 'Disponível';
+      body.appendChild(tag);
+
+      card.appendChild(body);
+
+      if (presente.escolhido) {
+        card.disabled = true;
+      } else {
         card.onclick = () => selecionarPresente(presente.id, card);
       }
       lista.appendChild(card);
@@ -658,21 +784,11 @@
   }
 
   function selecionarPresente(id, cardEl) {
-    document.querySelectorAll('.gift-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.gift2').forEach(c => c.classList.remove('selected'));
     cardEl.classList.add('selected');
     presenteSelecionado = id;
     document.getElementById('btnStep2').disabled = false;
     document.getElementById('giftError').classList.remove('show');
-  }
-
-  function irParaStep3() {
-    document.getElementById('step2').classList.remove('active');
-    document.getElementById('step3').classList.add('active');
-  }
-
-  function voltarParaStep2() {
-    document.getElementById('step3').classList.remove('active');
-    document.getElementById('step2').classList.add('active');
   }
 
   async function enviarConfirmacao() {
@@ -692,8 +808,7 @@
 
     if (erroPresente || !presenteAtualizado || presenteAtualizado.length === 0) {
       // outra pessoa escolheu esse presente entre a listagem e o envio
-      document.getElementById('step3').classList.remove('active');
-      document.getElementById('step2').classList.add('active');
+      mostrarStep('step2');
       document.getElementById('giftError').classList.add('show');
       document.getElementById('btnStep2').disabled = true;
       presenteSelecionado = null;
@@ -716,8 +831,7 @@
     }
 
     document.getElementById('nomeConfirmado').textContent = nome;
-    document.getElementById('step3').classList.remove('active');
-    document.getElementById('step4').classList.add('active');
+    mostrarStep('step4');
     if (mensagem) carregarMensagens();
   }
 </script>
