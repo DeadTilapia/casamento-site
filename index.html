@@ -9,17 +9,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>document.documentElement.classList.add('js');</script>
 <style>
   :root {
-    --color-blush-canvas: #f7f2fa;
-    --color-ink-navy: #3a2e4d;
-    --color-coral-vermillion: #a084c4;
-    --color-dusty-peach: #fceea8;
+    --color-blush-canvas: #f1e7fa;
+    --color-ink-navy: #372a4f;
+    --color-coral-vermillion: #9663c9;
+    --color-lilac-deep: #6a3fa3;
+    --color-lilac-soft: #e4d3f6;
+    --color-lilac-mist: #ece1f8;
+    --color-dusty-peach: #e6d6f6;
     --color-forest-ink: #4f6b48;
     --color-olive-grove: #a9c0a0;
-    --color-mustard-bloom: #fceea8;
-    --color-ember-orange: #c9b7de;
-    --color-sage-mist: #d8e3d3;
+    --color-mustard-bloom: #f6e39c;
+    --color-ember-orange: #b79bde;
+    --color-sage-mist: #dccdf0;
     --color-pure-white: #ffffff;
 
     --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -38,6 +42,7 @@
     font-weight: 300;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 
   .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
@@ -73,6 +78,17 @@
     position: relative;
     overflow: hidden;
   }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(60% 55% at 50% 30%, var(--color-lilac-mist), transparent 70%);
+    z-index: 0;
+  }
+  .hero > * { position: relative; z-index: 1; }
+  nav {
+    border-bottom: 1px solid var(--color-sage-mist);
+  }
   .hero-eyebrow {
     font-size: 15px;
     letter-spacing: 0.2em;
@@ -105,15 +121,130 @@
   /* BOTANICAL DIVIDER */
   .divider {
     width: 100%;
-    height: 48px;
+    height: 70px;
     display: block;
+    color: var(--color-coral-vermillion);
+  }
+  .divider path, .divider line, .divider circle { vector-effect: non-scaling-stroke; }
+
+  /* ---- ORNAMENTOS: linhas, molduras, flores, bichinhos ---- */
+  .ornament-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: var(--color-coral-vermillion);
+    margin: 22px auto 0;
+  }
+  .ornament-line::before,
+  .ornament-line::after {
+    content: "";
+    height: 1px;
+    width: clamp(40px, 12vw, 110px);
+    background: currentColor;
+  }
+  .ornament-line svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+
+  .deco {
+    position: absolute;
+    pointer-events: none;
+    color: var(--color-coral-vermillion);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+  }
+  .deco.soft { opacity: 0.4; }
+  .deco.filled { fill: var(--color-lilac-soft); stroke: var(--color-coral-vermillion); }
+
+  /* molduras / caixas */
+  .framed {
+    position: relative;
+    border: 1.5px solid var(--color-coral-vermillion);
+    border-radius: 4px;
+    background: var(--color-pure-white);
+    padding: clamp(32px, 6vw, 60px) clamp(24px, 6vw, 56px);
+  }
+  .framed::before,
+  .framed::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--color-lilac-deep);
+  }
+  .framed::before { top: -7px; left: -7px; border-right: 0; border-bottom: 0; }
+  .framed::after { bottom: -7px; right: -7px; border-left: 0; border-top: 0; }
+  .framed-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--color-lilac-deep);
+  }
+  .framed-corner.tr { top: -7px; right: -7px; border-left: 0; border-bottom: 0; }
+  .framed-corner.bl { bottom: -7px; left: -7px; border-right: 0; border-top: 0; }
+
+  /* fotos laterais que acompanham o scroll */
+  .photo-strip { position: relative; }
+  .side-photo {
+    position: absolute;
+    top: 60px;
+    width: clamp(150px, 13vw, 200px);
+    margin: 0;
+    padding: 10px 10px 36px;
+    background: var(--color-pure-white);
+    border: 1px solid var(--color-sage-mist);
+    box-shadow: 0 16px 34px -16px rgba(106, 63, 163, 0.45);
+    z-index: 4;
+    pointer-events: none;
+  }
+  .side-photo.left  { left: clamp(6px, 2.5vw, 46px); transform: rotate(-4deg); }
+  .side-photo.right { right: clamp(6px, 2.5vw, 46px); transform: rotate(3.5deg); }
+  .side-photo.low { top: auto; bottom: 60px; }
+  .side-photo img,
+  .side-photo .ph {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    background: linear-gradient(150deg, var(--color-lilac-soft), #e8ddf5);
+  }
+  .side-photo .ph { display: flex; align-items: center; justify-content: center; }
+  .side-photo .ph svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-vermillion); stroke-width: 1.3; }
+  .side-photo figcaption {
+    position: absolute;
+    left: 0; right: 0; bottom: 12px;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    color: var(--color-lilac-deep);
+  }
+  @media (max-width: 1320px) {
+    .side-photo { display: none; }
+  }
+  @media (max-width: 700px) {
+    .hero-sprig { width: 88px !important; height: 176px !important; opacity: 0.28; }
+    .deco { opacity: 0.5; }
+    .deco.soft { opacity: 0.3; }
+  }
+
+  /* aparição suave ao rolar (só quando o JS está ativo) */
+  .js .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .js .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .js .reveal { opacity: 1; transform: none; transition: none; }
   }
 
   /* STORY */
   .story {
     padding: var(--section-gap) 24px;
     text-align: center;
+    position: relative;
   }
+  .story .wrap-narrow { max-width: 680px; margin: 0 auto; }
   .story-label {
     font-size: 13px;
     letter-spacing: 0.2em;
@@ -127,7 +258,8 @@
     font-size: 36px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    margin-bottom: 32px;
+    margin-bottom: 12px;
+    color: var(--color-lilac-deep);
   }
   .story-body {
     font-size: 20px;
@@ -142,13 +274,18 @@
   .facts {
     padding: var(--section-gap) 24px;
     text-align: center;
+    position: relative;
   }
   .facts-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
+    gap: 6px;
     max-width: 900px;
-    margin: 48px auto 0;
+    margin: 40px auto 0;
+    border: 1.5px solid var(--color-coral-vermillion);
+    border-radius: 6px;
+    padding: 6px;
+    background: var(--color-coral-vermillion);
   }
   .fact-card {
     background: var(--color-pure-white);
@@ -161,13 +298,19 @@
   .fact-icon {
     width: 56px;
     height: 56px;
-    stroke: var(--color-ink-navy);
+    stroke: var(--color-lilac-deep);
     fill: none;
     stroke-width: 1.3;
   }
   .fact-label {
     font-size: 14px;
     letter-spacing: 0.05em;
+  }
+  .fact-value {
+    font-family: var(--font-display);
+    font-size: 26px;
+    color: var(--color-lilac-deep);
+    line-height: 1;
   }
   @media (max-width: 640px) {
     .facts-grid { grid-template-columns: repeat(2, 1fr); }
@@ -178,12 +321,24 @@
     padding: var(--section-gap) 24px;
     text-align: center;
     background: var(--color-dusty-peach);
+    position: relative;
+    overflow: hidden;
+  }
+  .rsvp-inner {
+    position: relative;
+    max-width: 620px;
+    margin: 0 auto;
+    background: var(--color-pure-white);
+    border: 1.5px solid var(--color-coral-vermillion);
+    border-radius: 6px;
+    padding: clamp(36px, 7vw, 64px) clamp(24px, 6vw, 56px);
   }
   .rsvp-heading {
     font-family: var(--font-display);
     font-size: 48px;
     font-weight: 300;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
+    color: var(--color-lilac-deep);
   }
   .rsvp-sub {
     font-size: 18px;
@@ -215,6 +370,7 @@
   .details {
     padding: var(--section-gap) 24px;
     text-align: center;
+    position: relative;
   }
   .details-grid {
     display: grid;
@@ -229,6 +385,21 @@
     font-weight: 400;
     font-size: 24px;
     margin-bottom: 12px;
+    color: var(--color-lilac-deep);
+  }
+  .detail-item {
+    position: relative;
+    padding-left: 20px;
+  }
+  .detail-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    background: var(--color-coral-vermillion);
+    border-radius: 2px;
   }
   .detail-item p {
     font-size: 16px;
@@ -240,17 +411,23 @@
 
   footer {
     text-align: center;
-    padding: 56px 24px;
+    padding: 64px 24px;
     font-size: 14px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--color-ink-navy);
+    color: var(--color-lilac-deep);
+    position: relative;
   }
+  footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-vermillion); stroke-width: 1.3; display: block; margin: 0 auto 18px; }
 
   /* MENSAGENS */
   .messages {
     padding: var(--section-gap) 24px;
     text-align: center;
+    position: relative;
+  }
+  .message-card {
+    border: 1px solid var(--color-sage-mist);
   }
   .messages-grid {
     display: grid;
@@ -491,6 +668,83 @@
 </head>
 <body>
 
+<!-- ================= BIBLIOTECA DE DESENHOS (flores, folhas, bichinhos) ================= -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <symbol id="ic-people" viewBox="0 0 64 64"><circle cx="32" cy="24" r="14"/><path d="M12 54c4-12 12-18 20-18s16 6 20 18"/></symbol>
+    <symbol id="ic-heart" viewBox="0 0 64 64"><path d="M32 54s-20-12-20-28a12 12 0 0 1 20-9 12 12 0 0 1 20 9c0 16-20 28-20 28z"/></symbol>
+    <symbol id="ic-cal" viewBox="0 0 64 64"><rect x="14" y="20" width="36" height="30" rx="1"/><path d="M14 28h36M22 20v-6M42 20v-6"/></symbol>
+    <symbol id="ic-pin" viewBox="0 0 64 64"><path d="M32 56c10-14 16-22 16-32a16 16 0 1 0-32 0c0 10 6 18 16 32z"/><circle cx="32" cy="24" r="6"/></symbol>
+    <symbol id="ic-camera" viewBox="0 0 64 64"><rect x="8" y="18" width="48" height="34" rx="4"/><circle cx="32" cy="35" r="11"/><path d="M22 18l5-8h10l5 8"/></symbol>
+
+    <symbol id="fl" viewBox="0 0 40 40">
+      <g stroke="currentColor" stroke-width="1.3">
+        <ellipse cx="20" cy="9"  rx="5" ry="8" fill="var(--color-lilac-soft)"/>
+        <ellipse cx="20" cy="31" rx="5" ry="8" fill="var(--color-lilac-soft)"/>
+        <ellipse cx="9"  cy="20" rx="8" ry="5" fill="var(--color-lilac-soft)"/>
+        <ellipse cx="31" cy="20" rx="8" ry="5" fill="var(--color-lilac-soft)"/>
+        <circle cx="20" cy="20" r="4" fill="var(--color-mustard-bloom)"/>
+      </g>
+    </symbol>
+    <symbol id="sprig" viewBox="0 0 60 120">
+      <g stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M30 118 C 30 80 30 40 30 6" fill="none"/>
+        <path d="M30 96 C 12 90 8 74 9 60 C 25 64 32 80 30 96Z" fill="var(--color-lilac-soft)"/>
+        <path d="M30 72 C 48 66 52 50 51 36 C 35 40 28 56 30 72Z" fill="var(--color-lilac-soft)"/>
+        <path d="M30 50 C 12 44 8 28 9 14 C 25 18 32 34 30 50Z" fill="var(--color-lilac-soft)"/>
+        <circle cx="30" cy="7" r="3.2" fill="var(--color-mustard-bloom)"/>
+      </g>
+    </symbol>
+    <symbol id="bird" viewBox="0 0 64 50">
+      <g stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 30 C 14 12 34 8 46 16 C 53 21 54 27 52 33 L 40 34 C 44 40 43 45 39 47 C 33 44 30 39 30 34 C 22 38 12 37 6 30Z" fill="var(--color-lilac-soft)"/>
+        <path d="M20 26 c 6 -6 14 -6 20 -2" fill="none"/>
+        <circle cx="43" cy="20" r="1.5" fill="currentColor" stroke="none"/>
+        <path d="M52 19 l 10 -3 -7 7Z" fill="var(--color-mustard-bloom)"/>
+      </g>
+    </symbol>
+    <symbol id="butterfly" viewBox="0 0 52 44">
+      <g stroke="currentColor" stroke-width="1.3" stroke-linejoin="round">
+        <path d="M26 22 C 10 2 2 12 7 21 C 2 32 14 40 26 22Z" fill="var(--color-lilac-soft)"/>
+        <path d="M26 22 C 42 2 50 12 45 21 C 50 32 38 40 26 22Z" fill="var(--color-lilac-soft)"/>
+        <line x1="26" y1="10" x2="26" y2="34" stroke-linecap="round"/>
+        <path d="M26 10 C 23 4 19 3 18 5 M26 10 C 29 4 33 3 34 5" fill="none" stroke-linecap="round"/>
+      </g>
+    </symbol>
+    <symbol id="rabbit" viewBox="0 0 64 76">
+      <g stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 44 C 10 44 9 64 24 68 C 34 72 48 68 49 56 C 50 46 41 40 32 40Z" fill="var(--color-lilac-soft)"/>
+        <path d="M25 42 C 19 30 17 10 23 6 C 29 10 29 28 30 40" fill="var(--color-lilac-soft)"/>
+        <path d="M35 41 C 31 29 33 9 39 7 C 44 13 41 31 39 42" fill="var(--color-lilac-soft)"/>
+        <circle cx="35" cy="52" r="1.7" fill="currentColor" stroke="none"/>
+      </g>
+    </symbol>
+    <symbol id="deer" viewBox="0 0 72 80">
+      <g stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M26 74 V56 M46 74 V56 M20 56 C 16 40 24 30 36 30 C 48 30 56 40 52 56 Z" fill="var(--color-lilac-soft)"/>
+        <path d="M36 30 C 34 22 34 16 36 12 C 38 16 38 22 36 30Z" fill="var(--color-lilac-soft)"/>
+        <path d="M30 18 C 24 14 22 8 22 4 M42 18 C 48 14 50 8 50 4 M30 14 C 26 14 22 12 20 10 M42 14 C 46 14 50 12 52 10"/>
+        <circle cx="33" cy="40" r="1.6" fill="currentColor" stroke="none"/>
+      </g>
+    </symbol>
+    <symbol id="divider-vine" viewBox="0 0 600 70">
+      <g stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none">
+        <path d="M300 35 C 250 16 210 16 172 34 C 138 50 104 52 44 36"/>
+        <path d="M300 35 C 350 16 390 16 428 34 C 462 50 496 52 556 36"/>
+        <path d="M196 25 C 186 12 172 10 164 12 C 168 26 184 30 196 25Z" fill="var(--color-lilac-soft)"/>
+        <path d="M150 44 C 140 57 126 59 118 57 C 122 43 138 39 150 44Z" fill="var(--color-lilac-soft)"/>
+        <path d="M404 25 C 414 12 428 10 436 12 C 432 26 416 30 404 25Z" fill="var(--color-lilac-soft)"/>
+        <path d="M450 44 C 460 57 474 59 482 57 C 478 43 462 39 450 44Z" fill="var(--color-lilac-soft)"/>
+        <circle cx="300" cy="35" r="7" fill="var(--color-mustard-bloom)"/>
+        <ellipse cx="300" cy="23" rx="4" ry="7" fill="var(--color-lilac-soft)"/>
+        <ellipse cx="300" cy="47" rx="4" ry="7" fill="var(--color-lilac-soft)"/>
+        <ellipse cx="288" cy="35" rx="7" ry="4" fill="var(--color-lilac-soft)"/>
+        <ellipse cx="312" cy="35" rx="7" ry="4" fill="var(--color-lilac-soft)"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
 <nav>
   <a href="#inicio">Início</a>
   <a href="#historia">Nossa História</a>
@@ -500,52 +754,101 @@
 </nav>
 
 <section class="hero" id="inicio">
+  <svg class="deco soft hero-sprig" style="top:-24px;left:-26px;width:150px;height:300px;transform:rotate(14deg)" aria-hidden="true"><use href="#sprig"/></svg>
+  <svg class="deco soft hero-sprig" style="top:-24px;right:-26px;width:150px;height:300px;transform:scaleX(-1) rotate(14deg)" aria-hidden="true"><use href="#sprig"/></svg>
+  <svg class="deco" style="top:40px;right:14%;width:44px;height:38px" aria-hidden="true"><use href="#butterfly"/></svg>
+  <svg class="deco soft" style="bottom:30px;left:11%;width:40px;height:34px;transform:rotate(-12deg)" aria-hidden="true"><use href="#butterfly"/></svg>
+
   <div class="hero-eyebrow">01 de Novembro de 2027 · São Carlos</div>
   <h1 class="hero-names">Alexandre<span class="hero-amp">&amp;</span>Alice</h1>
   <p class="hero-sub">Estamos nos casando e adoraríamos muito ter você com a gente nesse dia.</p>
+  <div class="ornament-line" aria-hidden="true">
+    <svg><use href="#fl"/></svg>
+  </div>
 </section>
 
-<svg class="divider" viewBox="0 0 1200 48" preserveAspectRatio="none" aria-hidden="true">
-  <path d="M0 24 Q 300 0 600 24 T 1200 24" stroke="#c9b7de" stroke-width="1.5" fill="none"/>
-</svg>
+<svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
 
 <section class="story" id="historia">
-  <div class="story-label">Nossa história</div>
-  <h2 class="story-heading">Como tudo começou</h2>
-  <p class="story-body">
-    Aqui entra o texto contando como vocês se conheceram — pode ser um parágrafo curto e afetuoso,
-    do jeito que vocês contariam pra um amigo. Esse é só um texto de exemplo pra você ver como fica
-    o espaçamento e a tipografia; troque por sua própria história antes de publicar.
-  </p>
-</section>
+  <svg class="deco soft" style="top:40px;right:2%;width:58px;height:46px" aria-hidden="true"><use href="#bird"/></svg>
 
-<section class="facts">
-  <div class="story-label">Curiosidades</div>
-  <h2 class="story-heading">Sobre nós</h2>
-  <div class="facts-grid">
-    <div class="fact-card">
-      <svg class="fact-icon" viewBox="0 0 64 64"><circle cx="32" cy="24" r="14"/><path d="M12 54c4-12 12-18 20-18s16 6 20 18"/></svg>
-      <span class="fact-label">Se conheceram em 2019</span>
-    </div>
-    <div class="fact-card">
-      <svg class="fact-icon" viewBox="0 0 64 64"><path d="M32 54s-20-12-20-28a12 12 0 0 1 20-9 12 12 0 0 1 20 9c0 16-20 28-20 28z"/></svg>
-      <span class="fact-label">Noivado em 2025</span>
-    </div>
-    <div class="fact-card">
-      <svg class="fact-icon" viewBox="0 0 64 64"><rect x="14" y="20" width="36" height="30" rx="1"/><path d="M14 28h36M22 20v-6M42 20v-6"/></svg>
-      <span class="fact-label">Data marcada</span>
-    </div>
-    <div class="fact-card">
-      <svg class="fact-icon" viewBox="0 0 64 64"><path d="M32 10v44M14 32c0-10 8-18 18-18s18 8 18 18-8 18-18 18-18-8-18-18z"/></svg>
-      <span class="fact-label">São Carlos, SP</span>
+  <figure class="side-photo right reveal">
+    <div class="ph"><svg viewBox="0 0 64 64"><use href="#ic-camera"/></svg></div>
+    <figcaption>a gente</figcaption>
+    <!-- Foto real: troque a linha <div class="ph">...</div> acima por
+         <img src="fotos/casal-1.jpg" alt="Alexandre e Alice"> -->
+  </figure>
+
+  <div class="wrap-narrow reveal">
+    <div class="story-label">Nossa história</div>
+    <h2 class="story-heading">Como tudo começou</h2>
+    <div class="ornament-line" aria-hidden="true"><svg><use href="#fl"/></svg></div>
+    <div class="framed" style="margin-top:36px">
+      <span class="framed-corner tr"></span><span class="framed-corner bl"></span>
+      <p class="story-body">
+        Aqui entra o texto contando como vocês se conheceram — pode ser um parágrafo curto e afetuoso,
+        do jeito que vocês contariam pra um amigo. Esse é só um texto de exemplo pra você ver como fica
+        o espaçamento e a tipografia; troque por sua própria história antes de publicar.
+      </p>
     </div>
   </div>
 </section>
 
+<svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
+
+<section class="facts">
+  <svg class="deco soft" style="top:36px;left:3%;width:52px;height:62px;transform:rotate(-8deg)" aria-hidden="true"><use href="#rabbit"/></svg>
+
+  <figure class="side-photo left reveal" style="top:120px">
+    <div class="ph"><svg viewBox="0 0 64 64"><use href="#ic-camera"/></svg></div>
+    <figcaption>nós dois</figcaption>
+  </figure>
+
+  <div class="reveal">
+    <div class="story-label">Curiosidades</div>
+    <h2 class="story-heading">Sobre nós</h2>
+    <div class="ornament-line" aria-hidden="true"><svg><use href="#fl"/></svg></div>
+  </div>
+  <div class="facts-grid reveal">
+    <div class="fact-card">
+      <svg class="fact-icon"><use href="#ic-people"/></svg>
+      <span class="fact-value">2026</span>
+      <span class="fact-label">Quando nos conhecemos</span>
+    </div>
+    <div class="fact-card">
+      <svg class="fact-icon"><use href="#ic-heart"/></svg>
+      <span class="fact-value">2027</span>
+      <span class="fact-label">Ano do noivado</span>
+    </div>
+    <div class="fact-card">
+      <svg class="fact-icon"><use href="#ic-cal"/></svg>
+      <span class="fact-value">01 · 11</span>
+      <span class="fact-label">Casamento em 2027</span>
+    </div>
+    <div class="fact-card">
+      <svg class="fact-icon"><use href="#ic-pin"/></svg>
+      <span class="fact-value">São Carlos</span>
+      <span class="fact-label">Interior de São Paulo</span>
+    </div>
+  </div>
+</section>
+
+<svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
+
 <section class="details" id="detalhes">
-  <div class="story-label">Informações</div>
-  <h2 class="story-heading">Detalhes do dia</h2>
-  <div class="details-grid">
+  <svg class="deco soft" style="top:44px;right:3%;width:44px;height:38px" aria-hidden="true"><use href="#butterfly"/></svg>
+
+  <figure class="side-photo right reveal" style="top:140px">
+    <div class="ph"><svg viewBox="0 0 64 64"><use href="#ic-camera"/></svg></div>
+    <figcaption>momentos</figcaption>
+  </figure>
+
+  <div class="reveal">
+    <div class="story-label">Informações</div>
+    <h2 class="story-heading">Detalhes do dia</h2>
+    <div class="ornament-line" aria-hidden="true"><svg><use href="#fl"/></svg></div>
+  </div>
+  <div class="details-grid reveal">
     <div class="detail-item">
       <h3>Cerimônia</h3>
       <p>16h00<br>Nome do local<br>Endereço completo aqui</p>
@@ -560,21 +863,41 @@
     </div>
     <div class="detail-item">
       <h3>Presentes</h3>
-      <p>Sua presença é o presente mais importante.<br>Lista disponível no RSVP.</p>
+      <p>Sua presença já é o nosso maior presente.</p>
     </div>
   </div>
 </section>
 
+<svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
+
 <section class="rsvp" id="rsvp">
-  <h2 class="rsvp-heading">Vem com a gente?</h2>
-  <p class="rsvp-sub">Confirme sua presença até 01 de outubro de 2027 — leva menos de um minuto.</p>
-  <button class="btn-outline" onclick="abrirRSVP()">Confirmar presença</button>
+  <svg class="deco soft" style="bottom:-20px;left:-18px;width:130px;height:260px;transform:rotate(-8deg)" aria-hidden="true"><use href="#sprig"/></svg>
+  <svg class="deco soft" style="top:-20px;right:-18px;width:130px;height:260px;transform:scaleX(-1) rotate(-8deg)" aria-hidden="true"><use href="#sprig"/></svg>
+  <div class="rsvp-inner reveal">
+    <span class="framed-corner tr"></span><span class="framed-corner bl"></span>
+    <svg class="deco" style="position:relative;display:block;margin:0 auto 12px;width:58px;height:46px" aria-hidden="true"><use href="#bird"/></svg>
+    <h2 class="rsvp-heading">Vem com a gente?</h2>
+    <p class="rsvp-sub">Confirme sua presença até 01 de outubro de 2027 — leva menos de um minuto.</p>
+    <button class="btn-outline" onclick="abrirRSVP()">Confirmar presença</button>
+  </div>
 </section>
 
+<svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
+
 <section class="messages" id="mensagens">
-  <div class="story-label">Recadinhos</div>
-  <h2 class="story-heading">Mensagens para os noivos</h2>
-  <div class="messages-grid" id="messagesGrid">
+  <svg class="deco soft" style="top:40px;left:3%;width:52px;height:58px" aria-hidden="true"><use href="#deer"/></svg>
+
+  <figure class="side-photo left low reveal">
+    <div class="ph"><svg viewBox="0 0 64 64"><use href="#ic-camera"/></svg></div>
+    <figcaption>lembranças</figcaption>
+  </figure>
+
+  <div class="reveal">
+    <div class="story-label">Recadinhos</div>
+    <h2 class="story-heading">Mensagens para os noivos</h2>
+    <div class="ornament-line" aria-hidden="true"><svg><use href="#fl"/></svg></div>
+  </div>
+  <div class="messages-grid reveal" id="messagesGrid">
     <p class="messages-empty">Carregando mensagens...</p>
   </div>
 </section>
@@ -636,7 +959,10 @@
   </div>
 </div>
 
-<footer>Alexandre &amp; Alice · 01 · 11 · 2027</footer>
+<footer>
+  <svg aria-hidden="true"><use href="#fl"/></svg>
+  Alexandre &amp; Alice · 01 · 11 · 2027
+</footer>
 
 <script>
   // --- Conexão com o Supabase ---
@@ -834,6 +1160,27 @@
     mostrarStep('step4');
     if (mensagem) carregarMensagens();
   }
+
+  // --- Aparição suave dos blocos ao rolar a página ---
+  (function () {
+    const alvos = document.querySelectorAll('.reveal');
+    const revelarTudo = () => alvos.forEach(el => el.classList.add('in'));
+
+    if (!('IntersectionObserver' in window)) { revelarTudo(); return; }
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    alvos.forEach(el => obs.observe(el));
+
+    // rede de segurança: se algo falhar, mostra tudo
+    setTimeout(revelarTudo, 2500);
+  })();
 </script>
 
 </body>
