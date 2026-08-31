@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
 <title>Alexandre & Alice — 02 de Novembro de 2027</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --color-blush-canvas: #f7f2fa;
@@ -244,6 +246,145 @@
     text-transform: uppercase;
     color: var(--color-ink-navy);
   }
+
+  /* RSVP MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(58, 46, 77, 0.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--color-pure-white);
+    border-radius: 24px;
+    max-width: 480px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 40px 32px;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--color-ink-navy);
+    cursor: pointer;
+    line-height: 1;
+  }
+  .modal-step { display: none; }
+  .modal-step.active { display: block; }
+  .modal-eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-coral-vermillion);
+    margin-bottom: 8px;
+  }
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 400;
+    margin-bottom: 24px;
+  }
+  .modal-input, .modal-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid var(--color-sage-mist);
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--color-ink-navy);
+    background: var(--color-blush-canvas);
+  }
+  .modal-textarea { resize: vertical; min-height: 90px; }
+  .modal-input:focus, .modal-textarea:focus {
+    outline: none;
+    border-color: var(--color-coral-vermillion);
+  }
+  .btn-solid {
+    display: inline-block;
+    border: none;
+    background: var(--color-coral-vermillion);
+    color: var(--color-pure-white);
+    padding: 14px 32px;
+    border-radius: var(--radius-full);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 24px;
+  }
+  .btn-solid:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-text {
+    display: block;
+    background: none;
+    border: none;
+    color: var(--color-ink-navy);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 14px;
+  }
+  .gift-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .gift-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--color-sage-mist);
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    background: var(--color-blush-canvas);
+  }
+  .gift-card.selected {
+    border-color: var(--color-coral-vermillion);
+    background: #f3ebfa;
+  }
+  .gift-card.taken {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .gift-name { font-weight: 500; font-size: 15px; }
+  .gift-desc { font-size: 13px; opacity: 0.7; }
+  .gift-status {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-forest-ink);
+    white-space: nowrap;
+  }
+  .modal-error {
+    color: #b3261e;
+    font-size: 14px;
+    margin-top: 12px;
+    display: none;
+  }
+  .modal-error.show { display: block; }
 </style>
 </head>
 <body>
@@ -324,10 +465,190 @@
 <section class="rsvp" id="rsvp">
   <h2 class="rsvp-heading">Confirme presença</h2>
   <p class="rsvp-sub">Contamos com você — confirme até 01 de outubro de 2027.</p>
-  <a href="#" class="btn-outline">Confirmar RSVP</a>
+  <button class="btn-outline" onclick="abrirRSVP()">Confirmar RSVP</button>
 </section>
 
+<div class="modal-overlay" id="rsvpModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="fecharRSVP()" aria-label="Fechar">&times;</button>
+
+    <!-- ETAPA 1: NOME -->
+    <div class="modal-step active" id="step1">
+      <div class="modal-eyebrow">Etapa 1 de 3</div>
+      <h3 class="modal-title">Qual é o seu nome?</h3>
+      <input type="text" class="modal-input" id="inputNome" placeholder="Nome como está no convite">
+      <button class="btn-solid" onclick="irParaStep2()">Próximo</button>
+    </div>
+
+    <!-- ETAPA 2: PRESENTE -->
+    <div class="modal-step" id="step2">
+      <div class="modal-eyebrow">Etapa 2 de 3</div>
+      <h3 class="modal-title">Escolha um presente</h3>
+      <div class="gift-list" id="giftList">
+        <p>Carregando presentes...</p>
+      </div>
+      <div class="modal-error" id="giftError">Esse presente acabou de ser escolhido por outra pessoa. Escolha outro da lista.</div>
+      <button class="btn-solid" id="btnStep2" onclick="irParaStep3()" disabled>Próximo</button>
+      <button class="btn-text" onclick="voltarParaStep1()">Voltar</button>
+    </div>
+
+    <!-- ETAPA 3: MENSAGEM -->
+    <div class="modal-step" id="step3">
+      <div class="modal-eyebrow">Etapa 3 de 3</div>
+      <h3 class="modal-title">Deixe uma mensagem (opcional)</h3>
+      <textarea class="modal-textarea" id="inputMensagem" placeholder="Um recadinho pros noivos..."></textarea>
+      <button class="btn-solid" id="btnConfirmar" onclick="enviarConfirmacao()">Confirmar presença</button>
+      <button class="btn-text" onclick="voltarParaStep2()">Voltar</button>
+    </div>
+
+    <!-- ETAPA 4: SUCESSO -->
+    <div class="modal-step" id="step4">
+      <div class="modal-eyebrow">Tudo certo</div>
+      <h3 class="modal-title">Presença confirmada!</h3>
+      <p style="font-size:16px;">Obrigado por confirmar, <span id="nomeConfirmado"></span>. Mal podemos esperar pra celebrar com você. 💜</p>
+      <button class="btn-solid" onclick="fecharRSVP()">Fechar</button>
+    </div>
+
+  </div>
+</div>
+
 <footer>Alexandre &amp; Alice · 02 · 11 · 2027</footer>
+
+<script>
+  // --- Conexão com o Supabase ---
+  const SUPABASE_URL = 'https://eosxiwmkwbvfjhebhxud.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Toy-wRW1IXRtA-BNKa4dkg_dWzoT1XV';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let presenteSelecionado = null;
+
+  function abrirRSVP() {
+    document.getElementById('rsvpModal').classList.add('open');
+    resetarModal();
+  }
+
+  function fecharRSVP() {
+    document.getElementById('rsvpModal').classList.remove('open');
+  }
+
+  function resetarModal() {
+    ['step1','step2','step3','step4'].forEach(id => document.getElementById(id).classList.remove('active'));
+    document.getElementById('step1').classList.add('active');
+    document.getElementById('inputNome').value = '';
+    document.getElementById('inputMensagem').value = '';
+    presenteSelecionado = null;
+    document.getElementById('btnStep2').disabled = true;
+    document.getElementById('giftError').classList.remove('show');
+  }
+
+  function irParaStep2() {
+    const nome = document.getElementById('inputNome').value.trim();
+    if (!nome) { alert('Por favor, digite seu nome.'); return; }
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+    carregarPresentes();
+  }
+
+  function voltarParaStep1() {
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step1').classList.add('active');
+  }
+
+  async function carregarPresentes() {
+    const lista = document.getElementById('giftList');
+    lista.innerHTML = '<p>Carregando presentes...</p>';
+
+    const { data, error } = await sb
+      .from('presentes')
+      .select('id, nome, descricao, escolhido')
+      .order('nome');
+
+    if (error) {
+      lista.innerHTML = '<p>Não foi possível carregar a lista agora. Tente novamente em instantes.</p>';
+      return;
+    }
+
+    lista.innerHTML = '';
+    data.forEach(presente => {
+      const card = document.createElement('div');
+      card.className = 'gift-card' + (presente.escolhido ? ' taken' : '');
+      card.innerHTML = `
+        <div>
+          <div class="gift-name">${presente.nome}</div>
+          ${presente.descricao ? `<div class="gift-desc">${presente.descricao}</div>` : ''}
+        </div>
+        <div class="gift-status">${presente.escolhido ? 'Já escolhido' : ''}</div>
+      `;
+      if (!presente.escolhido) {
+        card.onclick = () => selecionarPresente(presente.id, card);
+      }
+      lista.appendChild(card);
+    });
+  }
+
+  function selecionarPresente(id, cardEl) {
+    document.querySelectorAll('.gift-card').forEach(c => c.classList.remove('selected'));
+    cardEl.classList.add('selected');
+    presenteSelecionado = id;
+    document.getElementById('btnStep2').disabled = false;
+    document.getElementById('giftError').classList.remove('show');
+  }
+
+  function irParaStep3() {
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step3').classList.add('active');
+  }
+
+  function voltarParaStep2() {
+    document.getElementById('step3').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+  }
+
+  async function enviarConfirmacao() {
+    const nome = document.getElementById('inputNome').value.trim();
+    const mensagem = document.getElementById('inputMensagem').value.trim();
+    const btn = document.getElementById('btnConfirmar');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    // Tenta "travar" o presente: só atualiza se ainda não tiver sido escolhido
+    const { data: presenteAtualizado, error: erroPresente } = await sb
+      .from('presentes')
+      .update({ escolhido: true })
+      .eq('id', presenteSelecionado)
+      .eq('escolhido', false)
+      .select();
+
+    if (erroPresente || !presenteAtualizado || presenteAtualizado.length === 0) {
+      // outra pessoa escolheu esse presente entre a listagem e o envio
+      document.getElementById('step3').classList.remove('active');
+      document.getElementById('step2').classList.add('active');
+      document.getElementById('giftError').classList.add('show');
+      document.getElementById('btnStep2').disabled = true;
+      presenteSelecionado = null;
+      carregarPresentes();
+      btn.disabled = false;
+      btn.textContent = 'Confirmar presença';
+      return;
+    }
+
+    const { error: erroConfirmacao } = await sb
+      .from('confirmacoes')
+      .insert({ nome_convidado: nome, presente_id: presenteSelecionado, mensagem: mensagem || null });
+
+    btn.disabled = false;
+    btn.textContent = 'Confirmar presença';
+
+    if (erroConfirmacao) {
+      alert('Algo deu errado ao confirmar. Tente novamente em instantes.');
+      return;
+    }
+
+    document.getElementById('nomeConfirmado').textContent = nome;
+    document.getElementById('step3').classList.remove('active');
+    document.getElementById('step4').classList.add('active');
+  }
+</script>
 
 </body>
 </html>
