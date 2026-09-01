@@ -462,7 +462,8 @@
   }
 
   /* RSVP — FLUXO EM TELA CHEIA */
-  .rsvp-flow {
+  .rsvp-flow,
+  .noivos-screen {
     display: none;
     position: fixed;
     inset: 0;
@@ -471,7 +472,35 @@
     z-index: 100;
     overflow-y: auto;
   }
-  .rsvp-flow.open { display: block; }
+  .rsvp-flow.open,
+  .noivos-screen.open { display: block; }
+
+  .noivos-lock,
+  .noivos-conteudo { padding: 48px 24px 64px; }
+  .noivos-lock .flow-narrow svg,
+  .noivos-conteudo .flow-eyebrow + .flow-title { margin-top: 0; }
+  .noivos-lock-icon {
+    width: 46px;
+    height: 46px;
+    fill: none;
+    stroke: var(--color-coral-vermillion);
+    stroke-width: 1.3;
+    margin: 0 auto 18px;
+    display: block;
+  }
+  .noivos-link {
+    display: inline-block;
+    margin-top: 24px;
+    color: var(--color-lilac-deep);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--color-coral-vermillion);
+    padding-bottom: 3px;
+  }
+  .noivos-link:hover,
+  .noivos-link:focus-visible { color: var(--color-coral-vermillion); outline: none; }
 
   .flow-topbar {
     position: sticky;
@@ -676,6 +705,7 @@
     <symbol id="ic-cal" viewBox="0 0 64 64"><rect x="14" y="20" width="36" height="30" rx="1"/><path d="M14 28h36M22 20v-6M42 20v-6"/></symbol>
     <symbol id="ic-pin" viewBox="0 0 64 64"><path d="M32 56c10-14 16-22 16-32a16 16 0 1 0-32 0c0 10 6 18 16 32z"/><circle cx="32" cy="24" r="6"/></symbol>
     <symbol id="ic-camera" viewBox="0 0 64 64"><rect x="8" y="18" width="48" height="34" rx="4"/><circle cx="32" cy="35" r="11"/><path d="M22 18l5-8h10l5 8"/></symbol>
+    <symbol id="ic-lock" viewBox="0 0 64 64"><rect x="14" y="28" width="36" height="28" rx="4"/><path d="M22 28v-8a10 10 0 0 1 20 0v8"/><circle cx="32" cy="41" r="3"/><path d="M32 44v5"/></symbol>
 
     <symbol id="fl" viewBox="0 0 40 40">
       <g stroke="currentColor" stroke-width="1.3">
@@ -959,9 +989,47 @@
   </div>
 </div>
 
+<!-- ================= ÁREA DOS NOIVOS (protegida por senha) ================= -->
+<div class="noivos-screen" id="noivosScreen">
+  <div class="flow-topbar">
+    <span class="flow-brand">Área dos noivos</span>
+    <button class="flow-close" onclick="fecharNoivos()" aria-label="Fechar">&times;</button>
+  </div>
+
+  <!-- TRAVA -->
+  <div class="noivos-lock" id="noivosLock">
+    <div class="flow-narrow">
+      <svg class="noivos-lock-icon" aria-hidden="true"><use href="#ic-lock"/></svg>
+      <div class="flow-eyebrow">Espaço reservado</div>
+      <h3 class="flow-title">Só para os noivos</h3>
+      <p class="flow-lead">Digite a senha combinada pra entrar.</p>
+      <input type="password" class="modal-input" id="noivosSenha" placeholder="Senha" autocomplete="off"
+             onkeydown="if(event.key==='Enter'){event.preventDefault();entrarNoivos();}">
+      <div class="modal-error" id="noivosErro">Senha incorreta. Tente de novo.</div>
+      <button class="btn-solid" onclick="entrarNoivos()">Entrar</button>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO (após desbloquear) -->
+  <div class="noivos-conteudo" id="noivosConteudo">
+    <div class="flow-wide">
+      <div class="flow-eyebrow">Organização da festa</div>
+      <h3 class="flow-title">Bem-vindos, noivos 💜</h3>
+      <p class="flow-lead">
+        Este espaço é só de vocês e não aparece pros convidados. Ainda está vazio —
+        me digam o que querem organizar por aqui (checklist, lista de convidados,
+        orçamento, cronograma...) que eu monto.
+      </p>
+      <button class="btn-text" onclick="sairNoivos()">Sair desta área</button>
+    </div>
+  </div>
+</div>
+
 <footer>
   <svg aria-hidden="true"><use href="#fl"/></svg>
   Alexandre &amp; Alice · 01 · 11 · 2027
+  <br>
+  <a href="#noivos" class="noivos-link" onclick="abrirNoivos(event)">Área dos noivos</a>
 </footer>
 
 <script>
@@ -1009,7 +1077,58 @@
   }
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') fecharRSVP();
+    if (e.key === 'Escape') { fecharRSVP(); fecharNoivos(); }
+  });
+
+  // --- Área dos noivos (trava simples por senha) ---
+  const NOIVOS_SENHA = 'alealice';
+  const NOIVOS_KEY = 'noivos_ok';
+
+  function noivosDesbloqueado() {
+    try { return localStorage.getItem(NOIVOS_KEY) === '1'; } catch (e) { return false; }
+  }
+  function pintarPainelNoivos(ok) {
+    document.getElementById('noivosLock').style.display = ok ? 'none' : 'block';
+    document.getElementById('noivosConteudo').style.display = ok ? 'block' : 'none';
+    document.getElementById('noivosScreen').scrollTo(0, 0);
+  }
+  function abrirNoivos(e) {
+    if (e) e.preventDefault();
+    if (location.hash !== '#noivos') history.replaceState(null, '', '#noivos');
+    document.getElementById('noivosScreen').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const ok = noivosDesbloqueado();
+    pintarPainelNoivos(ok);
+    if (!ok) setTimeout(() => document.getElementById('noivosSenha').focus(), 60);
+  }
+  function fecharNoivos() {
+    const tela = document.getElementById('noivosScreen');
+    if (!tela.classList.contains('open')) return;
+    tela.classList.remove('open');
+    document.body.style.overflow = '';
+    if (location.hash === '#noivos') history.replaceState(null, '', location.pathname);
+  }
+  function entrarNoivos() {
+    const campo = document.getElementById('noivosSenha');
+    const erro = document.getElementById('noivosErro');
+    if (campo.value.trim().toLowerCase() === NOIVOS_SENHA) {
+      try { localStorage.setItem(NOIVOS_KEY, '1'); } catch (e) {}
+      campo.value = '';
+      erro.classList.remove('show');
+      pintarPainelNoivos(true);
+    } else {
+      erro.classList.add('show');
+      campo.select();
+    }
+  }
+  function sairNoivos() {
+    try { localStorage.removeItem(NOIVOS_KEY); } catch (e) {}
+    pintarPainelNoivos(false);
+    setTimeout(() => document.getElementById('noivosSenha').focus(), 60);
+  }
+  if (location.hash === '#noivos') abrirNoivos();
+  window.addEventListener('hashchange', () => {
+    if (location.hash === '#noivos') abrirNoivos();
   });
 
   function mostrarStep(id) {
