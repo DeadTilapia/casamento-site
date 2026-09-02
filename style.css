@@ -456,6 +456,50 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 }
 .rsvp-flow.open { display: block; }
 
+/* PRESENÇA (sim/não + quantidade de adultos e crianças) */
+.presence-toggle {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.presence-btn {
+  flex: 1;
+  padding: 14px 12px;
+  border: 1.5px solid var(--color-sage-mist);
+  border-radius: 12px;
+  background: var(--color-pure-white);
+  color: var(--color-ink-navy);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.presence-btn.active {
+  border-color: var(--color-coral-vermillion);
+  background: var(--color-coral-vermillion);
+  color: var(--color-pure-white);
+}
+.presence-qty {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.presence-qty .field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+.presence-qty label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.presence-qty input { margin: 0; }
+
 /* ÁREA DOS NOIVOS (página própria: noivos.html) */
 .noivos-lock,
 .noivos-conteudo { padding: 48px 24px 64px; }
@@ -659,7 +703,8 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   position: sticky;
   bottom: 0;
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 12px 20px;
   align-items: center;
   justify-content: center;
   padding: 18px 24px calc(18px + env(safe-area-inset-bottom));

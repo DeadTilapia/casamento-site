@@ -254,14 +254,31 @@
     <button class="flow-close" onclick="fecharRSVP()" aria-label="Fechar">&times;</button>
   </div>
 
-  <!-- ETAPA 1: NOME -->
+  <!-- ETAPA 1: NOME + PRESENÇA -->
   <div class="flow-step active" id="step1">
     <div class="flow-narrow">
       <div class="flow-eyebrow">Confirmação de presença</div>
-      <h3 class="flow-title">Que alegria que você vem!</h3>
-      <p class="flow-lead">Pra começar, nos conta quem é você.</p>
+      <h3 class="flow-title">Vamos confirmar sua presença</h3>
+      <p class="flow-lead">Pra começar, nos conta quem é você e se vai poder vir.</p>
       <input type="text" class="modal-input" id="inputNome" list="listaNomesConvidados" placeholder="Seu nome (como está no convite)">
       <datalist id="listaNomesConvidados"></datalist>
+
+      <div class="presence-toggle">
+        <button type="button" class="presence-btn" id="btnPresencaSim" onclick="selecionarPresenca(true)">Vou comparecer</button>
+        <button type="button" class="presence-btn" id="btnPresencaNao" onclick="selecionarPresenca(false)">Não vou poder ir</button>
+      </div>
+
+      <div class="presence-qty" id="presenceQty" style="display:none">
+        <div class="field">
+          <label for="inputAdultos">Adultos</label>
+          <input type="number" class="modal-input" id="inputAdultos" min="1" value="1">
+        </div>
+        <div class="field">
+          <label for="inputCriancas">Crianças</label>
+          <input type="number" class="modal-input" id="inputCriancas" min="0" value="0">
+        </div>
+      </div>
+
       <button class="btn-solid" onclick="irParaStep2()">Continuar</button>
     </div>
   </div>
@@ -270,8 +287,8 @@
   <div class="flow-step" id="step2">
     <div class="flow-wide">
       <div class="flow-eyebrow">Lista de presentes</div>
-      <h3 class="flow-title">Escolha um presente pra gente</h3>
-      <p class="flow-lead">Cada presente pode ser escolhido por uma só pessoa. Toque no que você quiser dar — sem pressão, sua presença já é o maior presente.</p>
+      <h3 class="flow-title" id="giftsTitulo">Escolha um presente pra gente</h3>
+      <p class="flow-lead" id="giftsLead">Cada presente pode ser escolhido por uma só pessoa. Toque no que você quiser dar — sem pressão, sua presença já é o maior presente.</p>
       <div class="modal-error" id="giftError">Ah, alguém escolheu esse presente antes de você. Dá uma olhada nos que ainda estão livres. 💛</div>
       <div class="gifts-grid" id="giftList">
         <p>Carregando presentes...</p>
@@ -279,6 +296,7 @@
     </div>
     <div class="flow-actions">
       <button class="btn-text" onclick="voltarParaStep1()">Voltar</button>
+      <button class="btn-text" onclick="pularPresente()">Prefiro não escolher agora</button>
       <button class="btn-solid" id="btnStep2" onclick="irParaStep3()" disabled>Continuar</button>
     </div>
   </div>
@@ -295,12 +313,12 @@
     </div>
   </div>
 
-  <!-- ETAPA 4: SUCESSO -->
+  <!-- ETAPA 4: RESULTADO -->
   <div class="flow-step" id="step4">
     <div class="flow-narrow">
-      <div class="flow-eyebrow">Presença confirmada</div>
-      <h3 class="flow-title">Viva! Já é oficial 🎉</h3>
-      <p style="font-size:17px; line-height:1.7;">Obrigado, <span id="nomeConfirmado"></span>! Ficamos muito felizes em saber que você vai estar com a gente nesse dia. Já estamos contando os dias — até 01 de novembro! 💜</p>
+      <div class="flow-eyebrow" id="finalEyebrow">Presença confirmada</div>
+      <h3 class="flow-title" id="finalTitulo">Viva! Já é oficial 🎉</h3>
+      <p style="font-size:17px; line-height:1.7;" id="finalTexto"></p>
       <button class="btn-solid" onclick="fecharRSVP()">Fechar</button>
     </div>
   </div>
@@ -377,11 +395,26 @@
     document.getElementById('rsvpModal').scrollTo(0, 0);
   }
 
+  let comparecera = null;
+
+  function selecionarPresenca(vai) {
+    comparecera = vai;
+    document.getElementById('btnPresencaSim').classList.toggle('active', vai === true);
+    document.getElementById('btnPresencaNao').classList.toggle('active', vai === false);
+    document.getElementById('presenceQty').style.display = vai ? 'flex' : 'none';
+  }
+
   function resetarModal() {
     mostrarStep('step1');
     document.getElementById('inputNome').value = '';
     document.getElementById('inputMensagem').value = '';
+    document.getElementById('inputAdultos').value = '1';
+    document.getElementById('inputCriancas').value = '0';
     presenteSelecionado = null;
+    comparecera = null;
+    document.getElementById('btnPresencaSim').classList.remove('active');
+    document.getElementById('btnPresencaNao').classList.remove('active');
+    document.getElementById('presenceQty').style.display = 'none';
     document.getElementById('btnStep2').disabled = true;
     document.getElementById('giftError').classList.remove('show');
   }
@@ -389,12 +422,31 @@
   function irParaStep2() {
     const nome = document.getElementById('inputNome').value.trim();
     if (!nome) { alert('Por favor, digite seu nome.'); return; }
+    if (comparecera === null) { alert('Conta pra gente se você vai poder vir!'); return; }
+
+    document.getElementById('giftsTitulo').textContent = comparecera
+      ? 'Escolha um presente pra gente'
+      : 'Quer escolher um presente mesmo assim?';
+    document.getElementById('giftsLead').textContent = comparecera
+      ? 'Cada presente pode ser escolhido por uma só pessoa. Toque no que você quiser dar — sem pressão, sua presença já é o maior presente.'
+      : 'Poxa, vamos sentir sua falta! Se quiser mandar um presente mesmo não podendo vir, fique à vontade — ou só siga em frente.';
+
     mostrarStep('step2');
     carregarPresentes();
   }
 
   function voltarParaStep1() { mostrarStep('step1'); }
-  function irParaStep3() { mostrarStep('step3'); }
+
+  function pularPresente() {
+    presenteSelecionado = null;
+    document.querySelectorAll('.gift2').forEach(c => c.classList.remove('selected'));
+    irParaStep3();
+  }
+
+  function irParaStep3() {
+    document.getElementById('btnConfirmar').textContent = comparecera ? 'Confirmar presença' : 'Enviar resposta';
+    mostrarStep('step3');
+  }
   function voltarParaStep2() { mostrarStep('step2'); }
 
   async function carregarPresentes() {
@@ -476,31 +528,53 @@
     document.getElementById('giftError').classList.remove('show');
   }
 
+  function mostrarResultadoFinal(nome, vaiComparecer) {
+    const eyebrow = document.getElementById('finalEyebrow');
+    const titulo = document.getElementById('finalTitulo');
+    const texto = document.getElementById('finalTexto');
+
+    if (vaiComparecer) {
+      eyebrow.textContent = 'Presença confirmada';
+      titulo.textContent = 'Viva! Já é oficial 🎉';
+      texto.textContent = `Obrigado, ${nome}! Ficamos muito felizes em saber que você vai estar com a gente nesse dia. Já estamos contando os dias — até 01 de novembro! 💜`;
+    } else {
+      eyebrow.textContent = 'Resposta registrada';
+      titulo.textContent = 'Que pena que você não vai poder vir 💭';
+      texto.textContent = `Obrigado por avisar, ${nome}! Vamos sentir sua falta, mas ficamos gratos por você ter pensado na gente. Se mudar de ideia, é só chamar a gente! 💜`;
+    }
+
+    mostrarStep('step4');
+  }
+
   async function enviarConfirmacao() {
     const nome = document.getElementById('inputNome').value.trim();
     const mensagem = document.getElementById('inputMensagem').value.trim();
+    const adultos = comparecera ? (parseInt(document.getElementById('inputAdultos').value) || 1) : null;
+    const criancas = comparecera ? (parseInt(document.getElementById('inputCriancas').value) || 0) : null;
     const btn = document.getElementById('btnConfirmar');
     btn.disabled = true;
     btn.textContent = 'Enviando...';
 
-    // Tenta "travar" o presente: só atualiza se ainda não tiver sido escolhido
-    const { data: presenteAtualizado, error: erroPresente } = await sb
-      .from('presentes')
-      .update({ escolhido: true })
-      .eq('id', presenteSelecionado)
-      .eq('escolhido', false)
-      .select();
+    // Só tenta "travar" o presente se algum foi escolhido — a etapa é opcional agora
+    if (presenteSelecionado) {
+      const { data: presenteAtualizado, error: erroPresente } = await sb
+        .from('presentes')
+        .update({ escolhido: true })
+        .eq('id', presenteSelecionado)
+        .eq('escolhido', false)
+        .select();
 
-    if (erroPresente || !presenteAtualizado || presenteAtualizado.length === 0) {
-      // outra pessoa escolheu esse presente entre a listagem e o envio
-      mostrarStep('step2');
-      document.getElementById('giftError').classList.add('show');
-      document.getElementById('btnStep2').disabled = true;
-      presenteSelecionado = null;
-      carregarPresentes();
-      btn.disabled = false;
-      btn.textContent = 'Confirmar presença';
-      return;
+      if (erroPresente || !presenteAtualizado || presenteAtualizado.length === 0) {
+        // outra pessoa escolheu esse presente entre a listagem e o envio
+        mostrarStep('step2');
+        document.getElementById('giftError').classList.add('show');
+        document.getElementById('btnStep2').disabled = true;
+        presenteSelecionado = null;
+        carregarPresentes();
+        btn.disabled = false;
+        btn.textContent = comparecera ? 'Confirmar presença' : 'Enviar resposta';
+        return;
+      }
     }
 
     // Tenta casar o nome digitado com alguém da lista de convidados (autocomplete).
@@ -517,10 +591,13 @@
         presente_id: presenteSelecionado,
         mensagem: mensagem || null,
         convidado_id: convidadoId,
+        vai_comparecer: comparecera,
+        adultos,
+        criancas,
       });
 
     btn.disabled = false;
-    btn.textContent = 'Confirmar presença';
+    btn.textContent = comparecera ? 'Confirmar presença' : 'Enviar resposta';
 
     if (erroConfirmacao) {
       alert('Algo deu errado ao confirmar. Tente novamente em instantes.');
@@ -528,11 +605,10 @@
     }
 
     if (convidadoId) {
-      await sb.from('convidados').update({ status: 'confirmado' }).eq('id', convidadoId);
+      await sb.from('convidados').update({ status: comparecera ? 'confirmado' : 'recusado' }).eq('id', convidadoId);
     }
 
-    document.getElementById('nomeConfirmado').textContent = nome;
-    mostrarStep('step4');
+    mostrarResultadoFinal(nome, comparecera);
     if (mensagem) carregarMensagens();
   }
 
