@@ -281,50 +281,40 @@ nav a:hover, nav a:focus-visible {
   text-transform: uppercase;
 }
 
-/* FUN FACTS GRID */
-.facts {
+/* QUANDO E ONDE (destaque de data/horário/local) */
+.venue {
   padding: var(--section-gap) 24px;
   text-align: center;
   position: relative;
 }
-.facts-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  max-width: 900px;
+.venue-card {
+  max-width: 560px;
   margin: 40px auto 0;
-  border: 1.5px solid var(--color-coral-vermillion);
-  border-radius: 6px;
-  padding: 6px;
-  background: var(--color-coral-vermillion);
 }
-.fact-card {
-  background: var(--color-pure-white);
-  padding: 32px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-.fact-icon {
-  width: 56px;
-  height: 56px;
-  stroke: var(--color-lilac-deep);
-  fill: none;
-  stroke-width: 1.3;
-}
-.fact-label {
-  font-size: 14px;
-  letter-spacing: 0.05em;
-}
-.fact-value {
+.venue-data {
   font-family: var(--font-display);
   font-size: 26px;
   color: var(--color-lilac-deep);
-  line-height: 1;
+  margin-bottom: 4px;
 }
-@media (max-width: 640px) {
-  .facts-grid { grid-template-columns: repeat(2, 1fr); }
+.venue-hora {
+  font-family: var(--font-display);
+  font-size: clamp(56px, 12vw, 76px);
+  line-height: 1;
+  color: var(--color-coral-vermillion);
+  margin: 8px 0 24px;
+}
+.venue-local {
+  font-size: 18px;
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+.venue-aviso {
+  font-size: 14px;
+  opacity: 0.75;
+  line-height: 1.7;
+  max-width: 420px;
+  margin: 0 auto;
 }
 
 /* RSVP */
