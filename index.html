@@ -588,7 +588,12 @@
     }
 
     if (convidadoId) {
-      await sb.from('convidados').update({ status: comparecera ? 'confirmado' : 'recusado' }).eq('id', convidadoId);
+      const dadosConvidado = { status: comparecera ? 'confirmado' : 'recusado' };
+      if (comparecera) {
+        dadosConvidado.adultos = adultos;
+        dadosConvidado.criancas = criancas;
+      }
+      await sb.from('convidados').update(dadosConvidado).eq('id', convidadoId);
     }
 
     mostrarResultadoFinal(nome, comparecera);

@@ -329,7 +329,7 @@
 
     const { data, error } = await sb
       .from('confirmacoes')
-      .select('id, nome_convidado, mensagem, criado_em')
+      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas')
       .is('convidado_id', null)
       .order('criado_em', { ascending: false });
 
@@ -363,10 +363,17 @@
     const convidadoId = select.value;
     if (!convidadoId) { alert('Escolha alguém da lista pra vincular.'); return; }
 
+    const conf = cacheConfirmacoesSemVinculo.find(c => c.id === confirmacaoId);
+
     const { error } = await sb.from('confirmacoes').update({ convidado_id: convidadoId }).eq('id', confirmacaoId);
     if (error) { alert('Não foi possível vincular.'); return; }
 
-    await sb.from('convidados').update({ status: 'confirmado' }).eq('id', convidadoId);
+    const dadosConvidado = { status: conf && conf.vai_comparecer === false ? 'recusado' : 'confirmado' };
+    if (conf && conf.vai_comparecer) {
+      dadosConvidado.adultos = conf.adultos ?? 1;
+      dadosConvidado.criancas = conf.criancas ?? 0;
+    }
+    await sb.from('convidados').update(dadosConvidado).eq('id', convidadoId);
     carregarConvidados();
   }
 
@@ -376,7 +383,13 @@
 
     const { data, error } = await sb
       .from('convidados')
-      .insert({ nome: conf.nome_convidado, lado: 'ambos', adultos: 1, criancas: 0, status: 'confirmado' })
+      .insert({
+        nome: conf.nome_convidado,
+        lado: 'ambos',
+        adultos: conf.vai_comparecer ? (conf.adultos ?? 1) : 1,
+        criancas: conf.vai_comparecer ? (conf.criancas ?? 0) : 0,
+        status: conf.vai_comparecer === false ? 'recusado' : 'confirmado',
+      })
       .select();
 
     if (error || !data || !data[0]) { alert('Não foi possível criar o convidado.'); return; }
