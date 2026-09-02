@@ -49,6 +49,7 @@
 
     <div class="noivos-tabs">
       <button class="noivos-tab-btn active" id="tabBtnConvidados" onclick="mostrarAbaNoivos('convidados')">Convidados</button>
+      <button class="noivos-tab-btn" id="tabBtnPadrinhos" onclick="mostrarAbaNoivos('padrinhos')">Padrinhos</button>
       <button class="noivos-tab-btn" id="tabBtnOrganizacao" onclick="mostrarAbaNoivos('organizacao')">Organização</button>
       <button class="noivos-tab-btn" id="tabBtnFinanceiro" onclick="mostrarAbaNoivos('financeiro')">Financeiro</button>
     </div>
@@ -116,6 +117,49 @@
       </div>
     </div>
 
+    <!-- ABA: PADRINHOS -->
+    <div class="noivos-tab-panel" id="tabPadrinhos">
+      <p class="flow-lead" style="text-align:left">
+        Essa lista aparece pros convidados na página principal do site — um jeito de
+        homenagear quem vai estar do seu lado no grande dia.
+      </p>
+
+      <div class="guests-add">
+        <div class="field" style="flex:1;min-width:180px">
+          <label for="novoPadrinhoNome">Nome</label>
+          <input type="text" id="novoPadrinhoNome" placeholder="Nome">
+        </div>
+        <div class="field">
+          <label for="novoPadrinhoPapel">Papel</label>
+          <select id="novoPadrinhoPapel">
+            <option value="padrinho">Padrinho</option>
+            <option value="madrinha">Madrinha</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="novoPadrinhoOrdem">Ordem</label>
+          <input type="number" id="novoPadrinhoOrdem" value="0" min="0">
+        </div>
+        <button class="btn-solid" style="margin-top:0" onclick="adicionarPadrinho()">Adicionar</button>
+      </div>
+
+      <div class="guests-table-wrap">
+        <table class="guests-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Papel</th>
+              <th>Ordem</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="padrinhosTableBody">
+            <tr><td colspan="4">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- ABA: ORGANIZAÇÃO -->
     <div class="noivos-tab-panel" id="tabOrganizacao">
       <p class="flow-lead">
@@ -173,7 +217,7 @@
   if (desbloqueado) carregarConvidados();
 
   // --- Abas: Convidados (home), Organização, Financeiro ---
-  const ABAS = ['convidados', 'organizacao', 'financeiro'];
+  const ABAS = ['convidados', 'padrinhos', 'organizacao', 'financeiro'];
 
   function mostrarAbaNoivos(aba) {
     ABAS.forEach(a => {
@@ -181,6 +225,7 @@
       document.getElementById('tabBtn' + capitalizar(a)).classList.toggle('active', a === aba);
     });
     if (aba === 'convidados') carregarConvidados();
+    if (aba === 'padrinhos') carregarPadrinhos();
   }
 
   function capitalizar(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -398,6 +443,76 @@
 
     await sb.from('confirmacoes').update({ convidado_id: data[0].id }).eq('id', confirmacaoId);
     carregarConvidados();
+  }
+
+  // --- Padrinhos e madrinhas (aparece pros convidados na página principal) ---
+  let cachePadrinhos = [];
+
+  async function carregarPadrinhos() {
+    const tbody = document.getElementById('padrinhosTableBody');
+    const { data, error } = await sb.from('padrinhos').select('*').order('ordem').order('nome');
+
+    if (error) {
+      tbody.innerHTML = '<tr><td colspan="4">Não foi possível carregar. Verifique se a tabela "padrinhos" já existe no Supabase.</td></tr>';
+      return;
+    }
+
+    cachePadrinhos = data || [];
+    renderTabelaPadrinhos();
+  }
+
+  function renderTabelaPadrinhos() {
+    const tbody = document.getElementById('padrinhosTableBody');
+    if (cachePadrinhos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4">Ninguém cadastrado ainda.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '';
+    cachePadrinhos.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input value="${escapeHtml(p.nome)}" onchange="atualizarPadrinho('${p.id}','nome',this.value)"></td>
+        <td>
+          <select onchange="atualizarPadrinho('${p.id}','papel',this.value)">
+            <option value="padrinho" ${p.papel === 'padrinho' ? 'selected' : ''}>Padrinho</option>
+            <option value="madrinha" ${p.papel === 'madrinha' ? 'selected' : ''}>Madrinha</option>
+          </select>
+        </td>
+        <td><input type="number" min="0" value="${p.ordem ?? 0}" onchange="atualizarPadrinho('${p.id}','ordem',parseInt(this.value)||0)"></td>
+        <td><button class="guests-remove" onclick="removerPadrinho('${p.id}')">Remover</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function adicionarPadrinho() {
+    const nome = document.getElementById('novoPadrinhoNome').value.trim();
+    if (!nome) { alert('Digite o nome.'); return; }
+
+    const papel = document.getElementById('novoPadrinhoPapel').value;
+    const ordem = parseInt(document.getElementById('novoPadrinhoOrdem').value) || 0;
+
+    const { error } = await sb.from('padrinhos').insert({ nome, papel, ordem });
+    if (error) { alert('Não foi possível adicionar.'); return; }
+
+    document.getElementById('novoPadrinhoNome').value = '';
+    document.getElementById('novoPadrinhoOrdem').value = '0';
+    carregarPadrinhos();
+  }
+
+  async function atualizarPadrinho(id, campo, valor) {
+    const { error } = await sb.from('padrinhos').update({ [campo]: valor }).eq('id', id);
+    if (error) { alert('Não foi possível salvar essa alteração.'); return; }
+    const item = cachePadrinhos.find(p => p.id === id);
+    if (item) item[campo] = valor;
+  }
+
+  async function removerPadrinho(id) {
+    if (!confirm('Remover essa pessoa da lista?')) return;
+    const { error } = await sb.from('padrinhos').delete().eq('id', id);
+    if (error) { alert('Não foi possível remover.'); return; }
+    carregarPadrinhos();
   }
 </script>
 

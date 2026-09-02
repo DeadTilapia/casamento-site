@@ -199,6 +199,21 @@
 
 <svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
 
+<section class="godparents" id="secaoPadrinhos" style="display:none">
+  <svg class="deco soft" style="top:40px;right:3%;width:44px;height:38px" aria-hidden="true"><use href="#butterfly"/></svg>
+
+  <div class="reveal">
+    <div class="story-label">Ao nosso lado</div>
+    <h2 class="story-heading">Padrinhos e madrinhas</h2>
+    <div class="ornament-line" aria-hidden="true"><svg><use href="#fl"/></svg></div>
+    <p class="godparents-lead">As pessoas especiais que escolhemos pra estar bem pertinho da gente nesse dia.</p>
+  </div>
+
+  <div class="godparents-grid reveal" id="godparentsGrid"></div>
+</section>
+
+<svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
+
 <section class="rsvp" id="rsvp">
   <svg class="deco soft" style="bottom:-20px;left:-18px;width:130px;height:260px;transform:rotate(-8deg)" aria-hidden="true"><use href="#sprig"/></svg>
   <svg class="deco soft" style="top:-20px;right:-18px;width:130px;height:260px;transform:scaleX(-1) rotate(-8deg)" aria-hidden="true"><use href="#sprig"/></svg>
@@ -375,6 +390,27 @@
     }
   }
   carregarNomesConvidados();
+
+  // --- Padrinhos e madrinhas ---
+  async function carregarPadrinhos() {
+    const secao = document.getElementById('secaoPadrinhos');
+    const grid = document.getElementById('godparentsGrid');
+    const { data, error } = await sb.from('padrinhos').select('*').order('ordem').order('nome');
+
+    if (error || !data || data.length === 0) {
+      secao.style.display = 'none';
+      return;
+    }
+
+    grid.innerHTML = data.map(p => `
+      <div class="godparent-card">
+        <span class="godparent-name">${escapeHtml(p.nome)}</span>
+        <span class="godparent-role">${p.papel === 'madrinha' ? 'Madrinha' : 'Padrinho'}</span>
+      </div>
+    `).join('');
+    secao.style.display = 'block';
+  }
+  carregarPadrinhos();
 
   function abrirRSVP() {
     document.getElementById('rsvpModal').classList.add('open');
