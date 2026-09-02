@@ -209,7 +209,7 @@
     <p class="godparents-lead">As pessoas especiais que escolhemos pra estar bem pertinho da gente nesse dia.</p>
   </div>
 
-  <div class="godparents-grid reveal" id="godparentsGrid"></div>
+  <ul class="godparents-list reveal" id="godparentsList"></ul>
 </section>
 
 <svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
@@ -391,23 +391,30 @@
   }
   carregarNomesConvidados();
 
-  // --- Padrinhos e madrinhas ---
+  // --- Padrinhos e madrinhas (casais) ---
   async function carregarPadrinhos() {
     const secao = document.getElementById('secaoPadrinhos');
-    const grid = document.getElementById('godparentsGrid');
-    const { data, error } = await sb.from('padrinhos').select('*').order('ordem').order('nome');
+    const lista = document.getElementById('godparentsList');
+    const { data, error } = await sb.from('padrinhos').select('*').order('ordem');
 
     if (error || !data || data.length === 0) {
       secao.style.display = 'none';
       return;
     }
 
-    grid.innerHTML = data.map(p => `
-      <div class="godparent-card">
-        <span class="godparent-name">${escapeHtml(p.nome)}</span>
-        <span class="godparent-role">${p.papel === 'madrinha' ? 'Madrinha' : 'Padrinho'}</span>
-      </div>
-    `).join('');
+    lista.innerHTML = data.map(p => {
+      const padrinho = p.nome_padrinho ? escapeHtml(p.nome_padrinho) : '';
+      const madrinha = p.nome_madrinha ? escapeHtml(p.nome_madrinha) : '';
+      const nomes = padrinho && madrinha
+        ? `${padrinho} <span class="godparent-amp">&amp;</span> ${madrinha}`
+        : (padrinho || madrinha);
+      return `
+        <li class="godparent-item">
+          <svg class="godparent-icon" aria-hidden="true"><use href="#fl"/></svg>
+          <span class="godparent-name">${nomes}</span>
+        </li>
+      `;
+    }).join('');
     secao.style.display = 'block';
   }
   carregarPadrinhos();
