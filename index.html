@@ -93,7 +93,6 @@
 
 <nav>
   <a href="#inicio">Início</a>
-  <a href="#historia">Nossa História</a>
   <a href="#detalhes">Detalhes</a>
   <a href="#mensagens">Mensagens</a>
   <a href="#rsvp">RSVP</a>
@@ -115,27 +114,30 @@
 
 <svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
 
-<section class="story" id="historia">
+<section class="countdown">
   <svg class="deco soft" style="top:40px;right:2%;width:58px;height:46px" aria-hidden="true"><use href="#bird"/></svg>
 
-  <figure class="side-photo right reveal">
-    <div class="ph"><svg viewBox="0 0 64 64"><use href="#ic-camera"/></svg></div>
-    <figcaption>a gente</figcaption>
-    <!-- Foto real: troque a linha <div class="ph">...</div> acima por
-         <img src="fotos/casal-1.jpg" alt="Alexandre e Alice"> -->
-  </figure>
-
-  <div class="wrap-narrow reveal">
-    <div class="story-label">Nossa história</div>
-    <h2 class="story-heading">Como tudo começou</h2>
+  <div class="reveal">
+    <div class="story-label">Contagem regressiva</div>
+    <h2 class="story-heading">Faltam...</h2>
     <div class="ornament-line" aria-hidden="true"><svg><use href="#fl"/></svg></div>
-    <div class="framed" style="margin-top:36px">
-      <span class="framed-corner tr"></span><span class="framed-corner bl"></span>
-      <p class="story-body">
-        Aqui entra o texto contando como vocês se conheceram — pode ser um parágrafo curto e afetuoso,
-        do jeito que vocês contariam pra um amigo. Esse é só um texto de exemplo pra você ver como fica
-        o espaçamento e a tipografia; troque por sua própria história antes de publicar.
-      </p>
+  </div>
+  <div class="countdown-grid reveal" id="countdownGrid">
+    <div class="countdown-item">
+      <span class="countdown-value" id="cdDias">–</span>
+      <span class="countdown-label">dias</span>
+    </div>
+    <div class="countdown-item">
+      <span class="countdown-value" id="cdHoras">–</span>
+      <span class="countdown-label">horas</span>
+    </div>
+    <div class="countdown-item">
+      <span class="countdown-value" id="cdMinutos">–</span>
+      <span class="countdown-label">minutos</span>
+    </div>
+    <div class="countdown-item">
+      <span class="countdown-value" id="cdSegundos">–</span>
+      <span class="countdown-label">segundos</span>
     </div>
   </div>
 </section>
@@ -197,7 +199,7 @@
   <div class="details-grid reveal">
     <div class="detail-item">
       <h3>Cerimônia</h3>
-      <p>16h00<br>Nome do local<br>Endereço completo aqui</p>
+      <p>15h00<br>Nome do local<br>Endereço completo aqui</p>
     </div>
     <div class="detail-item">
       <h3>Recepção</h3>
@@ -205,7 +207,7 @@
     </div>
     <div class="detail-item">
       <h3>Traje</h3>
-      <p>Esporte fino<br>Tons terrosos são bem-vindos</p>
+      <p>Esporte fino<br>Evite tons lilás/lavanda — é a cor reservada aos padrinhos e madrinhas</p>
     </div>
     <div class="detail-item">
       <h3>Presentes</h3>
@@ -262,6 +264,8 @@
       <p class="flow-lead">Pra começar, nos conta quem é você e se vai poder vir.</p>
       <input type="text" class="modal-input" id="inputNome" list="listaNomesConvidados" placeholder="Seu nome (como está no convite)">
       <datalist id="listaNomesConvidados"></datalist>
+
+      <input type="tel" class="modal-input" id="inputTelefone" placeholder="Seu WhatsApp com DDD (ex: 16 99999-9999)" style="margin-top:10px">
 
       <div class="presence-toggle">
         <button type="button" class="presence-btn" id="btnPresencaSim" onclick="selecionarPresenca(true)">Vou comparecer</button>
@@ -407,6 +411,7 @@
   function resetarModal() {
     mostrarStep('step1');
     document.getElementById('inputNome').value = '';
+    document.getElementById('inputTelefone').value = '';
     document.getElementById('inputMensagem').value = '';
     document.getElementById('inputAdultos').value = '1';
     document.getElementById('inputCriancas').value = '0';
@@ -421,7 +426,15 @@
 
   function irParaStep2() {
     const nome = document.getElementById('inputNome').value.trim();
+    const telefone = document.getElementById('inputTelefone').value.trim();
     if (!nome) { alert('Por favor, digite seu nome.'); return; }
+
+    const telefoneDigitos = telefone.replace(/\D/g, '');
+    if (telefoneDigitos.length < 10 || telefoneDigitos.length > 11) {
+      alert('Digite um telefone com WhatsApp válido, com DDD (ex: 16 99999-9999).');
+      return;
+    }
+
     if (comparecera === null) { alert('Conta pra gente se você vai poder vir!'); return; }
 
     document.getElementById('giftsTitulo').textContent = comparecera
@@ -548,6 +561,7 @@
 
   async function enviarConfirmacao() {
     const nome = document.getElementById('inputNome').value.trim();
+    const telefone = document.getElementById('inputTelefone').value.trim();
     const mensagem = document.getElementById('inputMensagem').value.trim();
     const adultos = comparecera ? (parseInt(document.getElementById('inputAdultos').value) || 1) : null;
     const criancas = comparecera ? (parseInt(document.getElementById('inputCriancas').value) || 0) : null;
@@ -588,6 +602,7 @@
       .from('confirmacoes')
       .insert({
         nome_convidado: nome,
+        telefone,
         presente_id: presenteSelecionado,
         mensagem: mensagem || null,
         convidado_id: convidadoId,
@@ -611,6 +626,36 @@
     mostrarResultadoFinal(nome, comparecera);
     if (mensagem) carregarMensagens();
   }
+
+  // --- Contagem regressiva até a cerimônia ---
+  (function () {
+    const DATA_FESTA = new Date('2027-11-01T15:00:00-03:00').getTime();
+    const elDias = document.getElementById('cdDias');
+    const elHoras = document.getElementById('cdHoras');
+    const elMinutos = document.getElementById('cdMinutos');
+    const elSegundos = document.getElementById('cdSegundos');
+    if (!elDias) return;
+
+    function atualizarContagem() {
+      const restante = DATA_FESTA - Date.now();
+      if (restante <= 0) {
+        elDias.textContent = '0';
+        elHoras.textContent = '0';
+        elMinutos.textContent = '0';
+        elSegundos.textContent = '0';
+        clearInterval(intervalo);
+        return;
+      }
+      const segundosTotais = Math.floor(restante / 1000);
+      elDias.textContent = Math.floor(segundosTotais / 86400);
+      elHoras.textContent = Math.floor((segundosTotais % 86400) / 3600);
+      elMinutos.textContent = Math.floor((segundosTotais % 3600) / 60);
+      elSegundos.textContent = segundosTotais % 60;
+    }
+
+    atualizarContagem();
+    const intervalo = setInterval(atualizarContagem, 1000);
+  })();
 
   // --- Aparição suave dos blocos ao rolar a página ---
   (function () {

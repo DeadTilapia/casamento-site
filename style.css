@@ -223,13 +223,7 @@ nav a:hover, nav a:focus-visible {
   .js .reveal { opacity: 1; transform: none; transition: none; }
 }
 
-/* STORY */
-.story {
-  padding: var(--section-gap) 24px;
-  text-align: center;
-  position: relative;
-}
-.story .wrap-narrow { max-width: 680px; margin: 0 auto; }
+/* TÍTULOS DE SEÇÃO (compartilhado por countdown, facts, details, messages) */
 .story-label {
   font-size: 13px;
   letter-spacing: 0.2em;
@@ -246,13 +240,45 @@ nav a:hover, nav a:focus-visible {
   margin-bottom: 12px;
   color: var(--color-lilac-deep);
 }
-.story-body {
-  font-size: 20px;
-  font-weight: 300;
-  line-height: 1.8;
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: left;
+
+/* CONTAGEM REGRESSIVA */
+.countdown {
+  padding: var(--section-gap) 24px;
+  text-align: center;
+  position: relative;
+}
+.countdown-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 640px;
+  margin: 40px auto 0;
+  border: 1.5px solid var(--color-coral-vermillion);
+  border-radius: 6px;
+  padding: 6px;
+  background: var(--color-coral-vermillion);
+}
+.countdown-item {
+  flex: 1;
+  min-width: 110px;
+  background: var(--color-pure-white);
+  padding: 28px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.countdown-value {
+  font-family: var(--font-display);
+  font-size: 44px;
+  line-height: 1;
+  color: var(--color-lilac-deep);
+}
+.countdown-label {
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 /* FUN FACTS GRID */
