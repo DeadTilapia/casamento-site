@@ -847,6 +847,14 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 .status-confirmado { background: #dcebd6; color: #3d6b32; }
 .status-recusado { background: #f5dcdc; color: #a13a3a; }
 
+/* Cor de fundo da linha conforme o status do convidado (bem suave) */
+.guests-table tr.row-pendente { background: rgba(246, 227, 156, 0.35); }
+.guests-table tr.row-confirmado { background: rgba(79, 107, 72, 0.09); }
+.guests-table tr.row-recusado { background: rgba(179, 38, 30, 0.06); }
+.guests-table tr.row-pendente td:first-child { box-shadow: inset 3px 0 0 #d8b93f; }
+.guests-table tr.row-confirmado td:first-child { box-shadow: inset 3px 0 0 var(--color-forest-ink); }
+.guests-table tr.row-recusado td:first-child { box-shadow: inset 3px 0 0 #c0645d; }
+
 /* CONFIRMAÇÕES SEM VÍNCULO */
 .unlinked-box { margin-top: 36px; }
 .unlinked-title { font-family: var(--font-display); font-size: 20px; color: var(--color-lilac-deep); margin-bottom: 12px; }

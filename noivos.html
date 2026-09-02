@@ -92,12 +92,14 @@
               <th>Adultos</th>
               <th>Crianças</th>
               <th>Status</th>
+              <th>Telefone</th>
+              <th>Presente escolhido</th>
               <th>Observações</th>
               <th></th>
             </tr>
           </thead>
           <tbody id="guestsTableBody">
-            <tr><td colspan="7">Carregando...</td></tr>
+            <tr><td colspan="9">Carregando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -184,20 +186,49 @@
   let cacheConvidados = [];
   let cacheConfirmacoesSemVinculo = [];
 
+  let infoPorConvidado = {};
+
   async function carregarConvidados() {
     const tbody = document.getElementById('guestsTableBody');
     const { data, error } = await sb.from('convidados').select('*').order('nome');
 
     if (error) {
-      tbody.innerHTML = '<tr><td colspan="7">Não foi possível carregar a lista. Verifique se a tabela "convidados" já existe no Supabase.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9">Não foi possível carregar a lista. Verifique se a tabela "convidados" já existe no Supabase.</td></tr>';
       document.getElementById('guestsSummary').innerHTML = '';
       return;
     }
 
     cacheConvidados = data || [];
+    await carregarInfoConfirmacoes();
     renderResumoConvidados();
     renderTabelaConvidados();
     carregarConfirmacoesSemVinculo();
+  }
+
+  // Telefone e presente escolhido vêm de confirmacoes/presentes — não moram em
+  // convidados, então buscamos à parte e casamos por convidado_id (a mais recente).
+  async function carregarInfoConfirmacoes() {
+    infoPorConvidado = {};
+
+    const { data: confirmacoes } = await sb
+      .from('confirmacoes')
+      .select('convidado_id, telefone, presente_id, criado_em')
+      .not('convidado_id', 'is', null)
+      .order('criado_em', { ascending: false });
+
+    if (!confirmacoes || confirmacoes.length === 0) return;
+
+    const { data: presentes } = await sb.from('presentes').select('id, nome');
+    const nomePresente = {};
+    (presentes || []).forEach(p => { nomePresente[p.id] = p.nome; });
+
+    confirmacoes.forEach(conf => {
+      if (infoPorConvidado[conf.convidado_id]) return; // já tem a mais recente
+      infoPorConvidado[conf.convidado_id] = {
+        telefone: conf.telefone || '',
+        presente: conf.presente_id ? (nomePresente[conf.presente_id] || '') : '',
+      };
+    });
   }
 
   function renderResumoConvidados() {
@@ -218,14 +249,16 @@
   function renderTabelaConvidados() {
     const tbody = document.getElementById('guestsTableBody');
     if (cacheConvidados.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7">Nenhum convidado cadastrado ainda.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9">Nenhum convidado cadastrado ainda.</td></tr>';
       return;
     }
 
     tbody.innerHTML = '';
     cacheConvidados.forEach(c => {
       const status = c.status || 'pendente';
+      const info = infoPorConvidado[c.id] || {};
       const tr = document.createElement('tr');
+      tr.className = 'row-' + status;
       tr.innerHTML = `
         <td><input value="${escapeHtml(c.nome)}" onchange="atualizarConvidado('${c.id}','nome',this.value)"></td>
         <td>
@@ -238,12 +271,14 @@
         <td><input type="number" min="0" value="${c.adultos ?? 1}" onchange="atualizarConvidado('${c.id}','adultos',parseInt(this.value)||0)"></td>
         <td><input type="number" min="0" value="${c.criancas ?? 0}" onchange="atualizarConvidado('${c.id}','criancas',parseInt(this.value)||0)"></td>
         <td>
-          <select class="status-pill status-${status}" onchange="atualizarConvidado('${c.id}','status',this.value); this.className='status-pill status-'+this.value;">
+          <select class="status-pill status-${status}" onchange="atualizarConvidado('${c.id}','status',this.value); this.className='status-pill status-'+this.value; this.closest('tr').className='row-'+this.value;">
             <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>Pendente</option>
             <option value="confirmado" ${status === 'confirmado' ? 'selected' : ''}>Confirmado</option>
             <option value="recusado" ${status === 'recusado' ? 'selected' : ''}>Recusou</option>
           </select>
         </td>
+        <td>${escapeHtml(info.telefone) || '—'}</td>
+        <td>${escapeHtml(info.presente) || '—'}</td>
         <td><input value="${escapeHtml(c.observacoes)}" onchange="atualizarConvidado('${c.id}','observacoes',this.value)"></td>
         <td><button class="guests-remove" onclick="removerConvidado('${c.id}')">Remover</button></td>
       `;
