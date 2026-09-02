@@ -693,6 +693,134 @@
     display: none;
   }
   .modal-error.show { display: block; }
+
+  /* ABAS DA ÁREA DOS NOIVOS */
+  .noivos-tabs {
+    display: flex;
+    gap: 24px;
+    margin: 24px 0 32px;
+    border-bottom: 1px solid var(--color-sage-mist);
+  }
+  .noivos-tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 2px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-ink-navy);
+    opacity: 0.55;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .noivos-tab-btn.active { opacity: 1; color: var(--color-lilac-deep); border-bottom-color: var(--color-coral-vermillion); }
+  .noivos-tab-panel { display: none; }
+  .noivos-tab-panel.active { display: block; }
+
+  /* RESUMO DE CONVIDADOS */
+  .guests-summary { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+  .guests-stat {
+    background: var(--color-pure-white);
+    border: 1px solid var(--color-sage-mist);
+    border-radius: 12px;
+    padding: 14px 20px;
+    min-width: 120px;
+  }
+  .guests-stat strong { display: block; font-family: var(--font-display); font-size: 28px; color: var(--color-lilac-deep); }
+  .guests-stat span { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+
+  /* FORMULÁRIO DE ADIÇÃO */
+  .guests-add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+    margin-bottom: 28px;
+    background: var(--color-pure-white);
+    border: 1px solid var(--color-sage-mist);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .guests-add .field { display: flex; flex-direction: column; gap: 4px; }
+  .guests-add label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
+  .guests-add input, .guests-add select {
+    padding: 9px 10px;
+    border: 1.5px solid var(--color-sage-mist);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    background: var(--color-pure-white);
+    color: var(--color-ink-navy);
+  }
+
+  /* TABELA DE CONVIDADOS */
+  .guests-table-wrap { overflow-x: auto; border: 1px solid var(--color-sage-mist); border-radius: 12px; background: var(--color-pure-white); }
+  .guests-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 720px; }
+  .guests-table th {
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-lilac-deep);
+    padding: 10px 12px;
+    border-bottom: 1.5px solid var(--color-sage-mist);
+    white-space: nowrap;
+  }
+  .guests-table td { padding: 6px 12px; border-bottom: 1px solid var(--color-sage-mist); vertical-align: middle; }
+  .guests-table tr:last-child td { border-bottom: none; }
+  .guests-table input, .guests-table select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    background: transparent;
+    color: var(--color-ink-navy);
+  }
+  .guests-table input:hover, .guests-table select:hover,
+  .guests-table input:focus, .guests-table select:focus {
+    border-color: var(--color-sage-mist);
+    background: var(--color-blush-canvas);
+    outline: none;
+  }
+  .guests-table input[type=number] { width: 56px; }
+  .guests-remove {
+    background: none;
+    border: none;
+    color: var(--color-coral-vermillion);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .status-pill { border-radius: 20px; }
+  .status-pendente { background: #f3ecd8; color: #8a6d1c; }
+  .status-confirmado { background: #dcebd6; color: #3d6b32; }
+  .status-recusado { background: #f5dcdc; color: #a13a3a; }
+
+  /* CONFIRMAÇÕES SEM VÍNCULO */
+  .unlinked-box { margin-top: 36px; }
+  .unlinked-title { font-family: var(--font-display); font-size: 20px; color: var(--color-lilac-deep); margin-bottom: 12px; }
+  .unlinked-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    background: var(--color-pure-white);
+    border: 1px solid var(--color-sage-mist);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    text-align: left;
+  }
+  .unlinked-item strong { color: var(--color-lilac-deep); }
+  .unlinked-item select { padding: 6px 8px; border: 1px solid var(--color-sage-mist); border-radius: 6px; font-size: 13px; }
+  .unlinked-item .btn-outline { padding: 6px 14px; font-size: 11px; }
 </style>
 </head>
 <body>
@@ -944,7 +1072,8 @@
       <div class="flow-eyebrow">Confirmação de presença</div>
       <h3 class="flow-title">Que alegria que você vem!</h3>
       <p class="flow-lead">Pra começar, nos conta quem é você.</p>
-      <input type="text" class="modal-input" id="inputNome" placeholder="Seu nome (como está no convite)">
+      <input type="text" class="modal-input" id="inputNome" list="listaNomesConvidados" placeholder="Seu nome (como está no convite)">
+      <datalist id="listaNomesConvidados"></datalist>
       <button class="btn-solid" onclick="irParaStep2()">Continuar</button>
     </div>
   </div>
@@ -1013,13 +1142,84 @@
   <!-- CONTEÚDO (após desbloquear) -->
   <div class="noivos-conteudo" id="noivosConteudo">
     <div class="flow-wide">
-      <div class="flow-eyebrow">Organização da festa</div>
+      <div class="flow-eyebrow">Espaço reservado</div>
       <h3 class="flow-title">Bem-vindos, noivos 💜</h3>
-      <p class="flow-lead">
-        Este espaço é só de vocês e não aparece pros convidados. Ainda está vazio —
-        me digam o que querem organizar por aqui (checklist, lista de convidados,
-        orçamento, cronograma...) que eu monto.
-      </p>
+      <p class="flow-lead">Este espaço é só de vocês e não aparece pros convidados.</p>
+
+      <div class="noivos-tabs">
+        <button class="noivos-tab-btn active" id="tabBtnOrganizacao" onclick="mostrarAbaNoivos('organizacao')">Organização</button>
+        <button class="noivos-tab-btn" id="tabBtnConvidados" onclick="mostrarAbaNoivos('convidados')">Convidados</button>
+      </div>
+
+      <!-- ABA: ORGANIZAÇÃO -->
+      <div class="noivos-tab-panel active" id="tabOrganizacao">
+        <p class="flow-lead">
+          Ainda está vazio por aqui — me digam o que mais querem organizar
+          (checklist, orçamento, cronograma...) que eu monto.
+        </p>
+      </div>
+
+      <!-- ABA: CONVIDADOS -->
+      <div class="noivos-tab-panel" id="tabConvidados">
+        <div class="guests-summary" id="guestsSummary"></div>
+
+        <div class="guests-add">
+          <div class="field">
+            <label for="novoNome">Nome</label>
+            <input type="text" id="novoNome" placeholder="Nome do convidado ou família">
+          </div>
+          <div class="field">
+            <label for="novoLado">Lado</label>
+            <select id="novoLado">
+              <option value="noivo">Noivo</option>
+              <option value="noiva">Noiva</option>
+              <option value="ambos">Ambos</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="novoAdultos">Adultos</label>
+            <input type="number" id="novoAdultos" value="1" min="0">
+          </div>
+          <div class="field">
+            <label for="novoCriancas">Crianças</label>
+            <input type="number" id="novoCriancas" value="0" min="0">
+          </div>
+          <div class="field" style="flex:1;min-width:160px">
+            <label for="novoObs">Observações</label>
+            <input type="text" id="novoObs" placeholder="opcional">
+          </div>
+          <button class="btn-solid" style="margin-top:0" onclick="adicionarConvidado()">Adicionar</button>
+        </div>
+
+        <div class="guests-table-wrap">
+          <table class="guests-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Lado</th>
+                <th>Adultos</th>
+                <th>Crianças</th>
+                <th>Status</th>
+                <th>Observações</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="guestsTableBody">
+              <tr><td colspan="7">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="unlinked-box" id="unlinkedBox" style="display:none">
+          <div class="unlinked-title">Confirmações sem vínculo</div>
+          <p class="flow-lead" style="margin-bottom:16px">
+            Essas pessoas confirmaram presença, mas o nome que digitaram não bateu com ninguém
+            da lista. Vincule a alguém já cadastrado ou adicione como novo convidado.
+          </p>
+          <div id="unlinkedList"></div>
+        </div>
+      </div>
+
       <button class="btn-text" onclick="sairNoivos()">Sair desta área</button>
     </div>
   </div>
@@ -1040,6 +1240,14 @@
 
   let presenteSelecionado = null;
 
+  function escapeHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
   async function carregarMensagens() {
     const grid = document.getElementById('messagesGrid');
     const { data, error } = await sb
@@ -1057,13 +1265,27 @@
       const card = document.createElement('div');
       card.className = 'message-card';
       card.innerHTML = `
-        <div class="message-text">${m.mensagem}</div>
-        <div class="message-author">${m.nome_convidado}</div>
+        <div class="message-text">${escapeHtml(m.mensagem)}</div>
+        <div class="message-author">${escapeHtml(m.nome_convidado)}</div>
       `;
       grid.appendChild(card);
     });
   }
   carregarMensagens();
+
+  // --- Autocomplete de nomes (lista de convidados) usado no RSVP público ---
+  let listaConvidadosPublica = [];
+
+  async function carregarNomesConvidados() {
+    const { data, error } = await sb.from('convidados').select('id, nome').order('nome');
+    if (error || !data) return;
+    listaConvidadosPublica = data;
+    const datalist = document.getElementById('listaNomesConvidados');
+    if (datalist) {
+      datalist.innerHTML = data.map(c => `<option value="${escapeHtml(c.nome)}"></option>`).join('');
+    }
+  }
+  carregarNomesConvidados();
 
   function abrirRSVP() {
     document.getElementById('rsvpModal').classList.add('open');
@@ -1263,9 +1485,21 @@
       return;
     }
 
+    // Tenta casar o nome digitado com alguém da lista de convidados (autocomplete).
+    // Se não bater com ninguém, a confirmação segue sem vínculo — os noivos resolvem depois.
+    const convidadoCorrespondente = listaConvidadosPublica.find(
+      c => c.nome.trim().toLowerCase() === nome.toLowerCase()
+    );
+    const convidadoId = convidadoCorrespondente ? convidadoCorrespondente.id : null;
+
     const { error: erroConfirmacao } = await sb
       .from('confirmacoes')
-      .insert({ nome_convidado: nome, presente_id: presenteSelecionado, mensagem: mensagem || null });
+      .insert({
+        nome_convidado: nome,
+        presente_id: presenteSelecionado,
+        mensagem: mensagem || null,
+        convidado_id: convidadoId,
+      });
 
     btn.disabled = false;
     btn.textContent = 'Confirmar presença';
@@ -1275,9 +1509,195 @@
       return;
     }
 
+    if (convidadoId) {
+      await sb.from('convidados').update({ status: 'confirmado' }).eq('id', convidadoId);
+    }
+
     document.getElementById('nomeConfirmado').textContent = nome;
     mostrarStep('step4');
     if (mensagem) carregarMensagens();
+  }
+
+  // --- Área dos noivos: aba Convidados ---
+  function mostrarAbaNoivos(aba) {
+    document.getElementById('tabOrganizacao').classList.toggle('active', aba === 'organizacao');
+    document.getElementById('tabConvidados').classList.toggle('active', aba === 'convidados');
+    document.getElementById('tabBtnOrganizacao').classList.toggle('active', aba === 'organizacao');
+    document.getElementById('tabBtnConvidados').classList.toggle('active', aba === 'convidados');
+    if (aba === 'convidados') carregarConvidados();
+  }
+
+  let cacheConvidados = [];
+  let cacheConfirmacoesSemVinculo = [];
+
+  async function carregarConvidados() {
+    const tbody = document.getElementById('guestsTableBody');
+    const { data, error } = await sb.from('convidados').select('*').order('nome');
+
+    if (error) {
+      tbody.innerHTML = '<tr><td colspan="7">Não foi possível carregar a lista. Verifique se a tabela "convidados" já existe no Supabase.</td></tr>';
+      document.getElementById('guestsSummary').innerHTML = '';
+      return;
+    }
+
+    cacheConvidados = data || [];
+    renderResumoConvidados();
+    renderTabelaConvidados();
+    carregarConfirmacoesSemVinculo();
+  }
+
+  function renderResumoConvidados() {
+    const grupos = cacheConvidados.length;
+    const pessoas = (status) => cacheConvidados
+      .filter(c => !status || c.status === status)
+      .reduce((soma, c) => soma + (c.adultos || 0) + (c.criancas || 0), 0);
+
+    document.getElementById('guestsSummary').innerHTML = `
+      <div class="guests-stat"><strong>${grupos}</strong><span>Grupos / famílias</span></div>
+      <div class="guests-stat"><strong>${pessoas()}</strong><span>Pessoas no total</span></div>
+      <div class="guests-stat"><strong>${pessoas('confirmado')}</strong><span>Confirmadas</span></div>
+      <div class="guests-stat"><strong>${pessoas('pendente')}</strong><span>Pendentes</span></div>
+      <div class="guests-stat"><strong>${pessoas('recusado')}</strong><span>Recusaram</span></div>
+    `;
+  }
+
+  function renderTabelaConvidados() {
+    const tbody = document.getElementById('guestsTableBody');
+    if (cacheConvidados.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7">Nenhum convidado cadastrado ainda.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '';
+    cacheConvidados.forEach(c => {
+      const status = c.status || 'pendente';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input value="${escapeHtml(c.nome)}" onchange="atualizarConvidado('${c.id}','nome',this.value)"></td>
+        <td>
+          <select onchange="atualizarConvidado('${c.id}','lado',this.value)">
+            <option value="noivo" ${c.lado === 'noivo' ? 'selected' : ''}>Noivo</option>
+            <option value="noiva" ${c.lado === 'noiva' ? 'selected' : ''}>Noiva</option>
+            <option value="ambos" ${c.lado === 'ambos' ? 'selected' : ''}>Ambos</option>
+          </select>
+        </td>
+        <td><input type="number" min="0" value="${c.adultos ?? 1}" onchange="atualizarConvidado('${c.id}','adultos',parseInt(this.value)||0)"></td>
+        <td><input type="number" min="0" value="${c.criancas ?? 0}" onchange="atualizarConvidado('${c.id}','criancas',parseInt(this.value)||0)"></td>
+        <td>
+          <select class="status-pill status-${status}" onchange="atualizarConvidado('${c.id}','status',this.value); this.className='status-pill status-'+this.value;">
+            <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>Pendente</option>
+            <option value="confirmado" ${status === 'confirmado' ? 'selected' : ''}>Confirmado</option>
+            <option value="recusado" ${status === 'recusado' ? 'selected' : ''}>Recusou</option>
+          </select>
+        </td>
+        <td><input value="${escapeHtml(c.observacoes)}" onchange="atualizarConvidado('${c.id}','observacoes',this.value)"></td>
+        <td><button class="guests-remove" onclick="removerConvidado('${c.id}')">Remover</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function adicionarConvidado() {
+    const nome = document.getElementById('novoNome').value.trim();
+    if (!nome) { alert('Digite o nome do convidado.'); return; }
+
+    const lado = document.getElementById('novoLado').value;
+    const adultos = parseInt(document.getElementById('novoAdultos').value) || 0;
+    const criancas = parseInt(document.getElementById('novoCriancas').value) || 0;
+    const observacoes = document.getElementById('novoObs').value.trim() || null;
+
+    const { error } = await sb.from('convidados').insert({ nome, lado, adultos, criancas, observacoes, status: 'pendente' });
+    if (error) { alert('Não foi possível adicionar o convidado.'); return; }
+
+    document.getElementById('novoNome').value = '';
+    document.getElementById('novoObs').value = '';
+    document.getElementById('novoAdultos').value = '1';
+    document.getElementById('novoCriancas').value = '0';
+
+    carregarConvidados();
+    carregarNomesConvidados();
+  }
+
+  async function atualizarConvidado(id, campo, valor) {
+    const { error } = await sb.from('convidados').update({ [campo]: valor }).eq('id', id);
+    if (error) { alert('Não foi possível salvar essa alteração.'); return; }
+
+    const item = cacheConvidados.find(c => c.id === id);
+    if (item) item[campo] = valor;
+    renderResumoConvidados();
+    if (campo === 'nome') carregarNomesConvidados();
+  }
+
+  async function removerConvidado(id) {
+    if (!confirm('Remover esse convidado da lista?')) return;
+    const { error } = await sb.from('convidados').delete().eq('id', id);
+    if (error) { alert('Não foi possível remover.'); return; }
+    carregarConvidados();
+    carregarNomesConvidados();
+  }
+
+  // Confirmações públicas cujo nome digitado não bateu com ninguém da lista
+  async function carregarConfirmacoesSemVinculo() {
+    const box = document.getElementById('unlinkedBox');
+    const list = document.getElementById('unlinkedList');
+
+    const { data, error } = await sb
+      .from('confirmacoes')
+      .select('id, nome_convidado, mensagem, criado_em')
+      .is('convidado_id', null)
+      .order('criado_em', { ascending: false });
+
+    if (error || !data || data.length === 0) {
+      box.style.display = 'none';
+      return;
+    }
+
+    cacheConfirmacoesSemVinculo = data;
+    box.style.display = 'block';
+
+    const opcoesConvidados = cacheConvidados
+      .map(c => `<option value="${c.id}">${escapeHtml(c.nome)}</option>`)
+      .join('');
+
+    list.innerHTML = data.map(conf => `
+      <div class="unlinked-item">
+        <span><strong>${escapeHtml(conf.nome_convidado)}</strong>${conf.mensagem ? ' — "' + escapeHtml(conf.mensagem) + '"' : ''}</span>
+        <select id="vinc-${conf.id}">
+          <option value="">Vincular a...</option>
+          ${opcoesConvidados}
+        </select>
+        <button class="btn-outline" onclick="vincularConfirmacao('${conf.id}')">Vincular</button>
+        <button class="btn-outline" onclick="criarConvidadoDeConfirmacao('${conf.id}')">Adicionar como novo</button>
+      </div>
+    `).join('');
+  }
+
+  async function vincularConfirmacao(confirmacaoId) {
+    const select = document.getElementById('vinc-' + confirmacaoId);
+    const convidadoId = select.value;
+    if (!convidadoId) { alert('Escolha alguém da lista pra vincular.'); return; }
+
+    const { error } = await sb.from('confirmacoes').update({ convidado_id: convidadoId }).eq('id', confirmacaoId);
+    if (error) { alert('Não foi possível vincular.'); return; }
+
+    await sb.from('convidados').update({ status: 'confirmado' }).eq('id', convidadoId);
+    carregarConvidados();
+  }
+
+  async function criarConvidadoDeConfirmacao(confirmacaoId) {
+    const conf = cacheConfirmacoesSemVinculo.find(c => c.id === confirmacaoId);
+    if (!conf) return;
+
+    const { data, error } = await sb
+      .from('convidados')
+      .insert({ nome: conf.nome_convidado, lado: 'ambos', adultos: 1, criancas: 0, status: 'confirmado' })
+      .select();
+
+    if (error || !data || !data[0]) { alert('Não foi possível criar o convidado.'); return; }
+
+    await sb.from('confirmacoes').update({ convidado_id: data[0].id }).eq('id', confirmacaoId);
+    carregarConvidados();
+    carregarNomesConvidados();
   }
 
   // --- Aparição suave dos blocos ao rolar a página ---
