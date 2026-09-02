@@ -11,6 +11,8 @@
 <link rel="stylesheet" href="style.css">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#9663c9">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -302,10 +304,27 @@
       <div class="flow-eyebrow" id="finalEyebrow">Presença confirmada</div>
       <h3 class="flow-title" id="finalTitulo">Viva! Já é oficial 🎉</h3>
       <p style="font-size:17px; line-height:1.7;" id="finalTexto"></p>
+
+      <div class="install-banner" style="display:none; margin:28px auto 0">
+        <svg aria-hidden="true"><use href="#fl"/></svg>
+        <p class="install-text">Quer ter o convite sempre à mão? Adicione esse site à tela inicial do seu celular!</p>
+        <button class="btn-outline install-btn" style="display:none">Adicionar à tela inicial</button>
+        <p class="install-tip" style="display:none"></p>
+      </div>
+
       <button class="btn-solid" onclick="fecharRSVP()">Fechar</button>
     </div>
   </div>
 </div>
+
+<section style="padding:0 24px 64px">
+  <div class="install-banner" style="display:none">
+    <svg aria-hidden="true"><use href="#fl"/></svg>
+    <p class="install-text">Quer ter esse site sempre à mão? Adicione à tela inicial do seu celular — fica como um app!</p>
+    <button class="btn-outline install-btn" style="display:none">Adicionar à tela inicial</button>
+    <p class="install-tip" style="display:none"></p>
+  </div>
+</section>
 
 <footer>
   <svg aria-hidden="true"><use href="#fl"/></svg>
@@ -639,6 +658,60 @@
 
     atualizarContagem();
     const intervalo = setInterval(atualizarContagem, 1000);
+  })();
+
+  // --- Convite pra adicionar à tela inicial ---
+  (function () {
+    let promptInstalacao = null;
+
+    function ehIOS() {
+      return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    }
+    function ehAndroid() {
+      return /android/i.test(navigator.userAgent);
+    }
+    function jaInstalado() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function atualizarBanners() {
+      document.querySelectorAll('.install-banner').forEach(box => {
+        if (jaInstalado() || (!ehIOS() && !ehAndroid())) {
+          box.style.display = 'none';
+          return;
+        }
+        box.style.display = 'block';
+        const btn = box.querySelector('.install-btn');
+        const dica = box.querySelector('.install-tip');
+
+        if (promptInstalacao) {
+          btn.style.display = 'inline-block';
+          dica.style.display = 'none';
+        } else {
+          btn.style.display = 'none';
+          dica.style.display = 'block';
+          dica.textContent = ehIOS()
+            ? 'No Safari, toque no ícone de compartilhar (o quadrado com a seta pra cima) e depois em "Adicionar à Tela de Início".'
+            : 'No Chrome, toque no menu (⋮) e depois em "Adicionar à tela inicial" ou "Instalar app".';
+        }
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      promptInstalacao = e;
+      atualizarBanners();
+    });
+
+    document.addEventListener('click', async (e) => {
+      if (!e.target.classList.contains('install-btn') || !promptInstalacao) return;
+      promptInstalacao.prompt();
+      await promptInstalacao.userChoice;
+      promptInstalacao = null;
+      atualizarBanners();
+    });
+
+    atualizarBanners();
   })();
 
   // --- Aparição suave dos blocos ao rolar a página ---

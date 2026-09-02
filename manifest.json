@@ -1,0 +1,12 @@
+{
+  "name": "A & A — Casamento",
+  "short_name": "A & A",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f1e7fa",
+  "theme_color": "#9663c9",
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "favicon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

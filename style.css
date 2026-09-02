@@ -445,6 +445,37 @@ footer {
 }
 footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-vermillion); stroke-width: 1.3; display: block; margin: 0 auto 18px; }
 
+/* CONVITE PRA ADICIONAR À TELA INICIAL */
+.install-banner {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 24px;
+  background: var(--color-pure-white);
+  border: 1.5px solid var(--color-sage-mist);
+  border-radius: 16px;
+  text-align: center;
+}
+.install-banner svg {
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: var(--color-coral-vermillion);
+  stroke-width: 1.3;
+  display: block;
+  margin: 0 auto 12px;
+}
+.install-text {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.install-tip {
+  font-size: 13px;
+  opacity: 0.75;
+  line-height: 1.6;
+}
+.install-btn { margin-top: 0; }
+
 /* MENSAGENS */
 .messages {
   padding: var(--section-gap) 24px;
