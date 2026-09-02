@@ -627,6 +627,7 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   font-size: 14px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
+  text-decoration: none;
   cursor: pointer;
   margin-top: 24px;
 }

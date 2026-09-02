@@ -46,20 +46,13 @@
     <p class="flow-lead">Este espaço é só de vocês e não aparece pros convidados.</p>
 
     <div class="noivos-tabs">
-      <button class="noivos-tab-btn active" id="tabBtnOrganizacao" onclick="mostrarAbaNoivos('organizacao')">Organização</button>
-      <button class="noivos-tab-btn" id="tabBtnConvidados" onclick="mostrarAbaNoivos('convidados')">Convidados</button>
+      <button class="noivos-tab-btn active" id="tabBtnConvidados" onclick="mostrarAbaNoivos('convidados')">Convidados</button>
+      <button class="noivos-tab-btn" id="tabBtnOrganizacao" onclick="mostrarAbaNoivos('organizacao')">Organização</button>
+      <button class="noivos-tab-btn" id="tabBtnFinanceiro" onclick="mostrarAbaNoivos('financeiro')">Financeiro</button>
     </div>
 
-    <!-- ABA: ORGANIZAÇÃO -->
-    <div class="noivos-tab-panel active" id="tabOrganizacao">
-      <p class="flow-lead">
-        Ainda está vazio por aqui — me digam o que mais querem organizar
-        (checklist, orçamento, cronograma...) que eu monto.
-      </p>
-    </div>
-
-    <!-- ABA: CONVIDADOS -->
-    <div class="noivos-tab-panel" id="tabConvidados">
+    <!-- ABA: CONVIDADOS (home) -->
+    <div class="noivos-tab-panel active" id="tabConvidados">
       <div class="guests-summary" id="guestsSummary"></div>
 
       <div class="guests-add">
@@ -119,6 +112,20 @@
       </div>
     </div>
 
+    <!-- ABA: ORGANIZAÇÃO -->
+    <div class="noivos-tab-panel" id="tabOrganizacao">
+      <p class="flow-lead">
+        Ainda está vazio por aqui — me digam o que mais querem organizar
+        (checklist, cronograma...) que eu monto.
+      </p>
+    </div>
+
+    <!-- ABA: FINANCEIRO -->
+    <div class="noivos-tab-panel" id="tabFinanceiro">
+      <p class="flow-lead">Nossa planilha de finanças e orçamento do casamento.</p>
+      <a class="btn-solid" href="https://docs.google.com/spreadsheets/d/1euiqp2sBDIwtRdkqk3GDLCkPttwgPlV9x28WKFyWGVA/edit?usp=drivesdk" target="_blank" rel="noopener noreferrer">Abrir planilha no Google Sheets ↗</a>
+    </div>
+
     <button class="btn-text" onclick="sairNoivos()">Sair desta área</button>
   </div>
 </div>
@@ -144,6 +151,7 @@
       campo.value = '';
       erro.classList.remove('show');
       pintarPainelNoivos(true);
+      carregarConvidados();
     } else {
       erro.classList.add('show');
       campo.select();
@@ -158,15 +166,20 @@
   const desbloqueado = noivosDesbloqueado();
   pintarPainelNoivos(desbloqueado);
   if (!desbloqueado) document.getElementById('noivosSenha').focus();
+  if (desbloqueado) carregarConvidados();
 
-  // --- Aba Convidados ---
+  // --- Abas: Convidados (home), Organização, Financeiro ---
+  const ABAS = ['convidados', 'organizacao', 'financeiro'];
+
   function mostrarAbaNoivos(aba) {
-    document.getElementById('tabOrganizacao').classList.toggle('active', aba === 'organizacao');
-    document.getElementById('tabConvidados').classList.toggle('active', aba === 'convidados');
-    document.getElementById('tabBtnOrganizacao').classList.toggle('active', aba === 'organizacao');
-    document.getElementById('tabBtnConvidados').classList.toggle('active', aba === 'convidados');
+    ABAS.forEach(a => {
+      document.getElementById('tab' + capitalizar(a)).classList.toggle('active', a === aba);
+      document.getElementById('tabBtn' + capitalizar(a)).classList.toggle('active', a === aba);
+    });
     if (aba === 'convidados') carregarConvidados();
   }
+
+  function capitalizar(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   let cacheConvidados = [];
   let cacheConfirmacoesSemVinculo = [];
