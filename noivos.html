@@ -84,6 +84,10 @@
           <label for="novoObs">Observações</label>
           <input type="text" id="novoObs" placeholder="opcional">
         </div>
+        <div class="field">
+          <label for="novoOrdem">Ordem</label>
+          <input type="number" id="novoOrdem" placeholder="opcional" min="0">
+        </div>
         <button class="btn-solid" style="margin-top:0" onclick="adicionarConvidado()">Adicionar</button>
       </div>
 
@@ -91,6 +95,7 @@
         <table class="guests-table">
           <thead>
             <tr>
+              <th>Ordem</th>
               <th>Nome</th>
               <th>Lado</th>
               <th>Adultos</th>
@@ -103,7 +108,7 @@
             </tr>
           </thead>
           <tbody id="guestsTableBody">
-            <tr><td colspan="9">Carregando...</td></tr>
+            <tr><td colspan="10">Carregando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -265,10 +270,10 @@
 
   async function carregarConvidados() {
     const tbody = document.getElementById('guestsTableBody');
-    const { data, error } = await sb.from('convidados').select('*').order('nome');
+    const { data, error } = await sb.from('convidados').select('*').order('ordem', { ascending: true, nullsFirst: false }).order('nome');
 
     if (error) {
-      tbody.innerHTML = '<tr><td colspan="9">Não foi possível carregar a lista. Verifique se a tabela "convidados" já existe no Supabase.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10">Não foi possível carregar a lista. Verifique se a tabela "convidados" já existe no Supabase.</td></tr>';
       document.getElementById('guestsSummary').innerHTML = '';
       return;
     }
@@ -324,7 +329,7 @@
   function renderTabelaConvidados() {
     const tbody = document.getElementById('guestsTableBody');
     if (cacheConvidados.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9">Nenhum convidado cadastrado ainda.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10">Nenhum convidado cadastrado ainda.</td></tr>';
       return;
     }
 
@@ -335,6 +340,7 @@
       const tr = document.createElement('tr');
       tr.className = 'row-' + status;
       tr.innerHTML = `
+        <td><input type="number" min="0" style="width:56px" value="${c.ordem ?? ''}" onchange="atualizarConvidado('${c.id}','ordem',this.value===''?null:parseInt(this.value)||0)"></td>
         <td><input value="${escapeHtml(c.nome)}" onchange="atualizarConvidado('${c.id}','nome',this.value)"></td>
         <td>
           <select onchange="atualizarConvidado('${c.id}','lado',this.value)">
@@ -369,14 +375,17 @@
     const adultos = parseInt(document.getElementById('novoAdultos').value) || 0;
     const criancas = parseInt(document.getElementById('novoCriancas').value) || 0;
     const observacoes = document.getElementById('novoObs').value.trim() || null;
+    const ordemValor = document.getElementById('novoOrdem').value;
+    const ordem = ordemValor === '' ? null : parseInt(ordemValor) || 0;
 
-    const { error } = await sb.from('convidados').insert({ nome, lado, adultos, criancas, observacoes, status: 'pendente' });
+    const { error } = await sb.from('convidados').insert({ nome, lado, adultos, criancas, observacoes, ordem, status: 'pendente' });
     if (error) { alert('Não foi possível adicionar o convidado.'); return; }
 
     document.getElementById('novoNome').value = '';
     document.getElementById('novoObs').value = '';
     document.getElementById('novoAdultos').value = '1';
     document.getElementById('novoCriancas').value = '0';
+    document.getElementById('novoOrdem').value = '';
 
     carregarConvidados();
   }
@@ -569,7 +578,7 @@
   }
 
   async function carregarMesas() {
-    const { data, error } = await sb.from('convidados').select('id, nome, adultos, criancas, mesa').order('nome');
+    const { data, error } = await sb.from('convidados').select('id, nome, adultos, criancas, mesa').order('ordem', { ascending: true, nullsFirst: false }).order('nome');
     if (error) {
       document.getElementById('mesasPoolList').innerHTML = '<p class="mesas-pool-empty">Não foi possível carregar os convidados.</p>';
       return;
