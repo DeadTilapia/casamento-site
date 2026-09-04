@@ -527,6 +527,13 @@
   }
   function voltarParaStep2() { mostrarStep('step2'); }
 
+  function formatarValor(valor) {
+    const n = Number(valor);
+    if (!valor && valor !== 0) return '';
+    if (Number.isNaN(n)) return '';
+    return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: n % 1 === 0 ? 0 : 2 });
+  }
+
   async function carregarPresentes() {
     const lista = document.getElementById('giftList');
     lista.innerHTML = '<p>Carregando presentes...</p>';
@@ -534,7 +541,8 @@
     const { data, error } = await sb
       .from('presentes')
       .select('*')
-      .order('nome');
+      .order('ordem', { ascending: true, nullsFirst: false })
+      .order('nome', { ascending: true });
 
     if (error) {
       lista.innerHTML = '<p>Não foi possível carregar a lista agora. Tente novamente em instantes.</p>';
@@ -546,7 +554,19 @@
     }
 
     lista.innerHTML = '';
+    let categoriaAtual = null;
     data.forEach(presente => {
+      const categoria = presente.categoria || null;
+      if (categoria !== categoriaAtual) {
+        categoriaAtual = categoria;
+        if (categoria) {
+          const heading = document.createElement('h4');
+          heading.className = 'gift-category';
+          heading.textContent = categoria;
+          lista.appendChild(heading);
+        }
+      }
+
       const imagem = presente.imagem_url || presente.imagem || presente.foto_url || presente.image_url || '';
 
       const card = document.createElement('button');
@@ -580,6 +600,14 @@
         desc.className = 'gift2-desc';
         desc.textContent = presente.descricao;
         body.appendChild(desc);
+      }
+
+      const valorFormatado = formatarValor(presente.valor);
+      if (valorFormatado) {
+        const valor = document.createElement('div');
+        valor.className = 'gift2-value';
+        valor.textContent = valorFormatado;
+        body.appendChild(valor);
       }
 
       const tag = document.createElement('div');

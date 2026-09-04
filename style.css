@@ -760,6 +760,18 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   .gifts-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
 .gifts-grid > p { grid-column: 1 / -1; opacity: 0.7; }
+.gift-category {
+  grid-column: 1 / -1;
+  margin: 20px 0 -4px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-forest-ink);
+  opacity: 0.75;
+}
+.gift-category:first-child { margin-top: 0; }
 .gift2 {
   display: flex;
   flex-direction: column;
@@ -807,6 +819,11 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 }
 .gift2-name { font-weight: 500; font-size: 15px; }
 .gift2-desc { font-size: 13px; opacity: 0.7; line-height: 1.5; }
+.gift2-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-coral-vermillion);
+}
 .gift2-tag {
   margin-top: auto;
   padding-top: 6px;
