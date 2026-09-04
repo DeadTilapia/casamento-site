@@ -510,7 +510,7 @@
   }
 
   async function atualizarPadrinho(id, campo, valor) {
-    const { error } = await sb.from('padrinhos').update({ [campo]: valor || null }).eq('id', id);
+    const { error } = await sb.from('padrinhos').update({ [campo]: valor === '' ? null : valor }).eq('id', id);
     if (error) { alert('Não foi possível salvar essa alteração.'); return; }
     const item = cachePadrinhos.find(p => p.id === id);
     if (item) item[campo] = valor;
