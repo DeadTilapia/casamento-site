@@ -49,6 +49,7 @@
 
     <div class="noivos-tabs">
       <button class="noivos-tab-btn active" id="tabBtnConvidados" onclick="mostrarAbaNoivos('convidados')">Convidados</button>
+      <button class="noivos-tab-btn" id="tabBtnMesas" onclick="mostrarAbaNoivos('mesas')">Mesas</button>
       <button class="noivos-tab-btn" id="tabBtnPadrinhos" onclick="mostrarAbaNoivos('padrinhos')">Padrinhos</button>
       <button class="noivos-tab-btn" id="tabBtnOrganizacao" onclick="mostrarAbaNoivos('organizacao')">Organização</button>
       <button class="noivos-tab-btn" id="tabBtnFinanceiro" onclick="mostrarAbaNoivos('financeiro')">Financeiro</button>
@@ -114,6 +115,33 @@
           da lista. Vincule a alguém já cadastrado ou adicione como novo convidado.
         </p>
         <div id="unlinkedList"></div>
+      </div>
+    </div>
+
+    <!-- ABA: MESAS -->
+    <div class="noivos-tab-panel" id="tabMesas">
+      <p class="flow-lead" style="text-align:left">
+        Arraste os nomes da lista pra uma mesa pra montar o arranjo. Pensado pra usar no
+        computador (arrastar e soltar não funciona bem no celular).
+      </p>
+
+      <div class="mesas-toolbar">
+        <div class="field">
+          <label for="mesasCadeiras">Cadeiras por mesa</label>
+          <input type="number" id="mesasCadeiras" min="2" max="12" value="8" onchange="mudarCadeirasPorMesa()">
+        </div>
+        <button class="btn-text" onclick="adicionarMesa()">+ Adicionar mesa</button>
+        <button class="btn-text" onclick="resetarMesas()">Resetar</button>
+        <button class="btn-solid" id="btnSalvarMesas" style="margin-top:0" onclick="salvarMesas()">Salvar arranjo</button>
+        <span class="mesas-aviso" id="mesasAviso"></span>
+      </div>
+
+      <div class="mesas-board">
+        <div class="mesas-pool" id="mesasPool" ondragover="permitirDrop(event)" ondragleave="sairDrop(event)" ondrop="soltarNoPool(event)">
+          <h4>Não alocados</h4>
+          <div class="mesas-pool-list" id="mesasPoolList"></div>
+        </div>
+        <div class="mesas-grid" id="mesasGrid"></div>
       </div>
     </div>
 
@@ -216,7 +244,7 @@
   if (desbloqueado) carregarConvidados();
 
   // --- Abas: Convidados (home), Organização, Financeiro ---
-  const ABAS = ['convidados', 'padrinhos', 'organizacao', 'financeiro'];
+  const ABAS = ['convidados', 'mesas', 'padrinhos', 'organizacao', 'financeiro'];
 
   function mostrarAbaNoivos(aba) {
     ABAS.forEach(a => {
@@ -225,6 +253,7 @@
     });
     if (aba === 'convidados') carregarConvidados();
     if (aba === 'padrinhos') carregarPadrinhos();
+    if (aba === 'mesas') carregarMesas();
   }
 
   function capitalizar(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -521,6 +550,217 @@
     const { error } = await sb.from('padrinhos').delete().eq('id', id);
     if (error) { alert('Não foi possível remover.'); return; }
     carregarPadrinhos();
+  }
+
+  // --- Mesas (arrastar e soltar) ---
+  let cacheMesasConvidados = [];
+  let mesaOriginal = {};
+  let cadeirasPorMesa = 8;
+  let numMesas = 8;
+
+  function headcount(c) {
+    return Math.max(1, (c.adultos || 0) + (c.criancas || 0));
+  }
+
+  function headcountMesa(numero) {
+    return cacheMesasConvidados
+      .filter(c => c.mesa === numero)
+      .reduce((soma, c) => soma + headcount(c), 0);
+  }
+
+  async function carregarMesas() {
+    const { data, error } = await sb.from('convidados').select('id, nome, adultos, criancas, mesa').order('nome');
+    if (error) {
+      document.getElementById('mesasPoolList').innerHTML = '<p class="mesas-pool-empty">Não foi possível carregar os convidados.</p>';
+      return;
+    }
+
+    cacheMesasConvidados = data || [];
+    mesaOriginal = {};
+    cacheMesasConvidados.forEach(c => { mesaOriginal[c.id] = c.mesa ?? null; });
+
+    const maiorMesaUsada = cacheMesasConvidados.reduce((max, c) => c.mesa ? Math.max(max, c.mesa) : max, 0);
+    cadeirasPorMesa = parseInt(localStorage.getItem('mesasCadeiras')) || 8;
+    numMesas = Math.max(parseInt(localStorage.getItem('mesasNum')) || 8, maiorMesaUsada);
+    document.getElementById('mesasCadeiras').value = cadeirasPorMesa;
+
+    renderMesasBoard();
+  }
+
+  function renderMesasBoard() {
+    const pool = document.getElementById('mesasPoolList');
+    const naoAlocados = cacheMesasConvidados.filter(c => !c.mesa);
+
+    if (naoAlocados.length === 0) {
+      pool.innerHTML = cacheMesasConvidados.length === 0
+        ? '<p class="mesas-pool-empty">Nenhum convidado cadastrado ainda.</p>'
+        : '<p class="mesas-pool-empty">Todo mundo já tem mesa! 🎉</p>';
+    } else {
+      pool.innerHTML = naoAlocados.map(c => `
+        <div class="guest-chip" draggable="true" data-id="${c.id}" ondragstart="iniciarArrasto(event)">
+          ${escapeHtml(c.nome)}${headcount(c) > 1 ? `<span class="chip-badge">×${headcount(c)}</span>` : ''}
+        </div>
+      `).join('');
+    }
+
+    const grid = document.getElementById('mesasGrid');
+    let html = '';
+    for (let m = 1; m <= numMesas; m++) {
+      const ocupantes = cacheMesasConvidados.filter(c => c.mesa === m);
+      const ocupadas = headcountMesa(m);
+      html += `
+        <div class="mesa">
+          <div class="mesa-label">Mesa ${m}</div>
+          <div class="mesa-ocupacao">${ocupadas}/${cadeirasPorMesa} lugares</div>
+          <div class="mesa-circle" data-mesa="${m}" ondragover="permitirDropMesa(event)" ondragleave="sairDropMesa(event)" ondrop="soltarNaMesa(event)">
+            <div class="mesa-table">Mesa ${m}</div>
+            ${renderCadeiras(ocupantes)}
+          </div>
+        </div>
+      `;
+    }
+    grid.innerHTML = html;
+  }
+
+  function renderCadeiras(ocupantes) {
+    const N = cadeirasPorMesa;
+    const CENTER = 120, RADIUS = 100, SIZE = 38;
+
+    const donos = [];
+    ocupantes.forEach(c => {
+      for (let i = 0; i < headcount(c); i++) donos.push(c);
+    });
+
+    let html = '';
+    for (let i = 0; i < N; i++) {
+      const angulo = -Math.PI / 2 + i * (2 * Math.PI / N);
+      const x = Math.round(CENTER + RADIUS * Math.cos(angulo) - SIZE / 2);
+      const y = Math.round(CENTER + RADIUS * Math.sin(angulo) - SIZE / 2);
+      const dono = donos[i];
+
+      if (dono) {
+        const label = (dono.nome || '').split(' ')[0].slice(0, 8);
+        html += `<div class="mesa-chair occupied" style="left:${x}px;top:${y}px" draggable="true" data-id="${dono.id}" ondragstart="iniciarArrasto(event)" title="${escapeHtml(dono.nome)}">${escapeHtml(label)}</div>`;
+      } else {
+        html += `<div class="mesa-chair" style="left:${x}px;top:${y}px"></div>`;
+      }
+    }
+    return html;
+  }
+
+  function iniciarArrasto(e) {
+    e.dataTransfer.setData('text/plain', e.currentTarget.dataset.id);
+    e.dataTransfer.effectAllowed = 'move';
+  }
+
+  function permitirDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('dragover');
+  }
+  function sairDrop(e) {
+    e.currentTarget.classList.remove('dragover');
+  }
+  function permitirDropMesa(e) {
+    e.preventDefault();
+    e.currentTarget.querySelector('.mesa-table').classList.add('dragover');
+  }
+  function sairDropMesa(e) {
+    e.currentTarget.querySelector('.mesa-table').classList.remove('dragover');
+  }
+
+  function soltarNaMesa(e) {
+    e.preventDefault();
+    e.currentTarget.querySelector('.mesa-table').classList.remove('dragover');
+    const id = e.dataTransfer.getData('text/plain');
+    const numero = parseInt(e.currentTarget.dataset.mesa);
+    atribuirMesa(id, numero);
+  }
+
+  function soltarNoPool(e) {
+    e.preventDefault();
+    document.getElementById('mesasPool').classList.remove('dragover');
+    const id = e.dataTransfer.getData('text/plain');
+    atribuirMesa(id, null);
+  }
+
+  function atribuirMesa(id, numero) {
+    const conv = cacheMesasConvidados.find(c => c.id === id);
+    if (!conv) return;
+
+    if (numero !== null) {
+      const jaEstaAqui = conv.mesa === numero;
+      const ocupadasSemEle = headcountMesa(numero) - (jaEstaAqui ? headcount(conv) : 0);
+      if (ocupadasSemEle + headcount(conv) > cadeirasPorMesa) {
+        mostrarAvisoMesas(`Essa mesa não tem ${headcount(conv)} lugar(es) livre(s).`, false);
+        return;
+      }
+    }
+
+    conv.mesa = numero;
+    renderMesasBoard();
+  }
+
+  function mostrarAvisoMesas(msg, ok) {
+    const el = document.getElementById('mesasAviso');
+    el.textContent = msg;
+    el.className = 'mesas-aviso show' + (ok ? ' ok' : '');
+    clearTimeout(window.__mesasAvisoTimeout);
+    window.__mesasAvisoTimeout = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  function mudarCadeirasPorMesa() {
+    const novo = parseInt(document.getElementById('mesasCadeiras').value) || 8;
+    cadeirasPorMesa = Math.max(2, Math.min(12, novo));
+    document.getElementById('mesasCadeiras').value = cadeirasPorMesa;
+    localStorage.setItem('mesasCadeiras', cadeirasPorMesa);
+
+    // se alguma mesa passou da nova capacidade, devolve o excedente pra lista
+    for (let m = 1; m <= numMesas; m++) {
+      let ocupadas = headcountMesa(m);
+      if (ocupadas <= cadeirasPorMesa) continue;
+      const ocupantes = cacheMesasConvidados.filter(c => c.mesa === m);
+      for (let i = ocupantes.length - 1; i >= 0 && ocupadas > cadeirasPorMesa; i--) {
+        ocupadas -= headcount(ocupantes[i]);
+        ocupantes[i].mesa = null;
+      }
+    }
+    renderMesasBoard();
+  }
+
+  function adicionarMesa() {
+    numMesas++;
+    localStorage.setItem('mesasNum', numMesas);
+    renderMesasBoard();
+  }
+
+  function resetarMesas() {
+    if (!confirm('Isso descarta as mudanças não salvas e volta pro último arranjo salvo. Continuar?')) return;
+    cacheMesasConvidados.forEach(c => { c.mesa = mesaOriginal[c.id] ?? null; });
+    renderMesasBoard();
+  }
+
+  async function salvarMesas() {
+    const btn = document.getElementById('btnSalvarMesas');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    const alterados = cacheMesasConvidados.filter(c => (c.mesa ?? null) !== (mesaOriginal[c.id] ?? null));
+    let erro = false;
+    for (const c of alterados) {
+      const { error } = await sb.from('convidados').update({ mesa: c.mesa }).eq('id', c.id);
+      if (error) erro = true;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Salvar arranjo';
+
+    if (erro) {
+      mostrarAvisoMesas('Algumas mesas não foram salvas. Tente de novo.', false);
+      return;
+    }
+
+    alterados.forEach(c => { mesaOriginal[c.id] = c.mesa ?? null; });
+    mostrarAvisoMesas(alterados.length ? 'Arranjo salvo! 💜' : 'Nada pra salvar.', true);
   }
 </script>
 
