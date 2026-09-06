@@ -779,15 +779,28 @@
         const btn = box.querySelector('.install-btn');
         const dica = box.querySelector('.install-tip');
 
+        btn.style.display = 'inline-block';
+        dica.style.display = 'none';
+
         if (promptInstalacao) {
-          btn.style.display = 'inline-block';
-          dica.style.display = 'none';
+          // Chrome/Android: o botão dispara o prompt nativo de instalação direto.
+          btn.textContent = 'Adicionar à tela inicial';
+          btn.onclick = async () => {
+            promptInstalacao.prompt();
+            await promptInstalacao.userChoice;
+            promptInstalacao = null;
+            atualizarBanners();
+          };
         } else {
-          btn.style.display = 'none';
-          dica.style.display = 'block';
+          // Safari/iOS (e outros sem suporte a instalação direta): o botão
+          // mostra o passo a passo, já que o navegador não permite instalar via JS.
+          btn.textContent = ehIOS() ? 'Como instalar no iPhone' : 'Como instalar o app';
           dica.textContent = ehIOS()
             ? 'No Safari, toque no ícone de compartilhar (o quadrado com a seta pra cima) e depois em "Adicionar à Tela de Início".'
-            : 'No Chrome, toque no menu (⋮) e depois em "Adicionar à tela inicial" ou "Instalar app".';
+            : 'No seu navegador, toque no menu e depois em "Adicionar à tela inicial" ou "Instalar app".';
+          btn.onclick = () => {
+            dica.style.display = dica.style.display === 'none' ? 'block' : 'none';
+          };
         }
       });
     }
@@ -795,14 +808,6 @@
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       promptInstalacao = e;
-      atualizarBanners();
-    });
-
-    document.addEventListener('click', async (e) => {
-      if (!e.target.classList.contains('install-btn') || !promptInstalacao) return;
-      promptInstalacao.prompt();
-      await promptInstalacao.userChoice;
-      promptInstalacao = null;
       atualizarBanners();
     });
 
