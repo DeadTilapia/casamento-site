@@ -92,9 +92,11 @@ nav a:hover, nav a:focus-visible {
 .hero-amp {
   color: var(--color-coral-vermillion);
   display: inline-block;
-  padding: 0 16px;
+  padding: 0 10px;
   font-family: var(--font-amp);
   font-style: normal;
+  font-size: 0.4em;
+  vertical-align: 0.18em;
 }
 .hero-sub {
   margin-top: 40px;
