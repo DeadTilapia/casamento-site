@@ -445,9 +445,9 @@ nav a:hover, nav a:focus-visible {
 }
 .details-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 48px;
-  max-width: 700px;
+  max-width: 480px;
   margin: 48px auto 0;
   text-align: left;
 }
@@ -475,9 +475,6 @@ nav a:hover, nav a:focus-visible {
 .detail-item p {
   font-size: 16px;
   line-height: 2;
-}
-@media (max-width: 560px) {
-  .details-grid { grid-template-columns: 1fr; }
 }
 
 footer {
