@@ -918,6 +918,29 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 }
 
 /* TABELA DE CONVIDADOS */
+.guests-names-toolbar { display: flex; gap: 16px; margin-bottom: 10px; }
+.guest-name-cell { min-width: 200px; }
+.guest-name-row { display: flex; align-items: center; gap: 4px; }
+.guest-name-row input { flex: 1; min-width: 140px; }
+.guest-name-toggle {
+  flex-shrink: 0;
+  background: var(--color-blush-canvas);
+  border: 1px solid var(--color-sage-mist);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 12px;
+  color: var(--color-lilac-deep);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.guest-names-list {
+  margin-top: 4px;
+  padding: 6px 10px;
+  background: var(--color-blush-canvas);
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.7;
+}
 .guests-table-wrap { overflow-x: auto; border: 1px solid var(--color-sage-mist); border-radius: 12px; background: var(--color-pure-white); }
 .guests-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 720px; }
 .guests-table th {

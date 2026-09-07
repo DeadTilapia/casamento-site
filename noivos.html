@@ -91,6 +91,11 @@
         <button class="btn-solid" style="margin-top:0" onclick="adicionarConvidado()">Adicionar</button>
       </div>
 
+      <div class="guests-names-toolbar">
+        <button class="btn-text" onclick="abrirTodosNomes()">Abrir todos os nomes</button>
+        <button class="btn-text" onclick="fecharTodosNomes()">Fechar todos os nomes</button>
+      </div>
+
       <div class="guests-table-wrap">
         <table class="guests-table">
           <thead>
@@ -265,6 +270,25 @@
 
   let cacheConvidados = [];
   let cacheConfirmacoesSemVinculo = [];
+  let nomesExpandidos = new Set();
+
+  function alternarNome(id) {
+    if (nomesExpandidos.has(id)) nomesExpandidos.delete(id);
+    else nomesExpandidos.add(id);
+    renderTabelaConvidados();
+  }
+
+  function abrirTodosNomes() {
+    cacheConvidados.forEach(c => {
+      if (c.nome && c.nome.includes(' + ')) nomesExpandidos.add(c.id);
+    });
+    renderTabelaConvidados();
+  }
+
+  function fecharTodosNomes() {
+    nomesExpandidos.clear();
+    renderTabelaConvidados();
+  }
 
   let infoPorConvidado = {};
 
@@ -326,6 +350,22 @@
     `;
   }
 
+  function renderCelulaNome(c) {
+    const partes = (c.nome || '').split(' + ').map(p => p.trim()).filter(Boolean);
+    const inputHtml = `<input value="${escapeHtml(c.nome)}" onchange="atualizarConvidado('${c.id}','nome',this.value)">`;
+
+    if (partes.length < 2) return inputHtml;
+
+    const aberto = nomesExpandidos.has(c.id);
+    return `
+      <div class="guest-name-row">
+        ${inputHtml}
+        <button type="button" class="guest-name-toggle" onclick="alternarNome('${c.id}')" title="Ver nomes separados">${aberto ? '▾' : '▸'} ${partes.length}</button>
+      </div>
+      ${aberto ? `<div class="guest-names-list">${partes.map(p => `<div>${escapeHtml(p)}</div>`).join('')}</div>` : ''}
+    `;
+  }
+
   function renderTabelaConvidados() {
     const tbody = document.getElementById('guestsTableBody');
     if (cacheConvidados.length === 0) {
@@ -341,7 +381,7 @@
       tr.className = 'row-' + status;
       tr.innerHTML = `
         <td><input type="number" min="0" style="width:56px" value="${c.ordem ?? ''}" onchange="atualizarConvidado('${c.id}','ordem',this.value===''?null:parseInt(this.value)||0)"></td>
-        <td><input value="${escapeHtml(c.nome)}" onchange="atualizarConvidado('${c.id}','nome',this.value)"></td>
+        <td class="guest-name-cell">${renderCelulaNome(c)}</td>
         <td>
           <select onchange="atualizarConvidado('${c.id}','lado',this.value)">
             <option value="noivo" ${c.lado === 'noivo' ? 'selected' : ''}>Noivo</option>
