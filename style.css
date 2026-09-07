@@ -15,6 +15,7 @@
 
   --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-body: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-amp: 'Pinyon Script', cursive;
 
   --radius-full: 200px;
   --section-gap: 80px;
@@ -92,7 +93,9 @@ nav a:hover, nav a:focus-visible {
   color: var(--color-coral-vermillion);
   display: inline-block;
   padding: 0 16px;
-  font-style: italic;
+  font-family: var(--font-amp);
+  font-size: 0.7em;
+  vertical-align: 0.08em;
 }
 .hero-sub {
   margin-top: 40px;
@@ -383,8 +386,15 @@ nav a:hover, nav a:focus-visible {
 }
 .godparent-amp {
   color: var(--color-coral-vermillion);
-  font-style: italic;
+  font-family: var(--font-amp);
+  font-size: 1.5em;
   padding: 0 2px;
+}
+
+.amp {
+  color: var(--color-coral-vermillion);
+  font-family: var(--font-amp);
+  font-size: 1.4em;
 }
 
 /* RSVP */
