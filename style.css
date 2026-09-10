@@ -335,7 +335,25 @@ nav a:hover, nav a:focus-visible {
 .venue-local {
   font-size: 18px;
   line-height: 1.8;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+}
+.venue-local strong {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-lilac-deep);
+}
+.venue-valet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--color-forest-ink);
+  background: rgba(79, 107, 72, 0.09);
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin: 0 0 20px;
 }
 .venue-aviso {
   font-size: 14px;
@@ -344,6 +362,7 @@ nav a:hover, nav a:focus-visible {
   max-width: 420px;
   margin: 0 auto;
 }
+.venue-map { margin-top: 24px; }
 
 /* PADRINHOS E MADRINHAS */
 .godparents {
