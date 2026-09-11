@@ -405,7 +405,7 @@
     <div class="flow-wide">
       <div class="flow-eyebrow">Lista de presentes</div>
       <h3 class="flow-title">Escolha um presente pra gente</h3>
-      <p class="flow-lead">Cada presente pode ser escolhido por uma só pessoa. Assim que você tocar em um, a gente já te leva direto pro Pix.</p>
+      <p class="flow-lead">Cada presente pode ser escolhido por uma só pessoa. Toque no que você quiser dar e confirme embaixo.</p>
       <div class="modal-error" id="giftError">Ah, alguém escolheu esse presente antes de você. Dá uma olhada nos que ainda estão livres. 💛</div>
       <div class="gifts-grid" id="giftList">
         <p>Carregando presentes...</p>
@@ -413,6 +413,7 @@
     </div>
     <div class="flow-actions">
       <button class="btn-text" onclick="mostrarPresenteStep('presenteStep1')">Voltar</button>
+      <button class="btn-solid" id="btnConfirmarPresente" onclick="confirmarEscolhaPresente()" disabled>Confirmar escolha</button>
     </div>
   </div>
 
@@ -435,6 +436,16 @@
         Alguns bancos permitem alterar o valor antes de confirmar — pode mandar o que puder, sem pressão. 💜
       </p>
 
+      <button class="btn-solid" onclick="confirmarEnvioPresente()">✅ Confirmar envio</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 4: AGRADECIMENTO -->
+  <div class="flow-step" id="presenteStep4">
+    <div class="flow-narrow">
+      <div class="flow-eyebrow">Muito obrigado 💜</div>
+      <h3 class="flow-title">Ficamos muito felizes!</h3>
+      <p style="font-size:17px; line-height:1.7" id="agradecimentoTexto"></p>
       <button class="btn-solid" onclick="fecharPresentes()">Fechar</button>
     </div>
   </div>
@@ -599,11 +610,15 @@
   // --- Modal de Presentes: separado do RSVP, pra quem quiser mandar um
   // presente sem precisar confirmar presença (ou pra quem já confirmou e
   // volta ao site só pra isso). ---
+  let presenteEscolhidoDireto = null;
+
   function abrirPresentes(nomePreenchido) {
     document.getElementById('presentesModal').classList.add('open');
     document.body.style.overflow = 'hidden';
     document.getElementById('presenteNome').value = nomePreenchido || '';
     document.getElementById('giftError').classList.remove('show');
+    presenteEscolhidoDireto = null;
+    document.getElementById('btnConfirmarPresente').disabled = true;
     if (nomePreenchido) {
       irParaEscolherPresente();
     } else {
@@ -625,7 +640,7 @@
   }
 
   function mostrarPresenteStep(id) {
-    ['presenteStep1', 'presenteStep2', 'presenteStep3'].forEach(s => document.getElementById(s).classList.remove('active'));
+    ['presenteStep1', 'presenteStep2', 'presenteStep3', 'presenteStep4'].forEach(s => document.getElementById(s).classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.getElementById('presentesModal').scrollTo(0, 0);
   }
@@ -640,6 +655,8 @@
   async function carregarPresentesDireto() {
     const lista = document.getElementById('giftList');
     lista.innerHTML = '<p>Carregando presentes...</p>';
+    presenteEscolhidoDireto = null;
+    document.getElementById('btnConfirmarPresente').disabled = true;
 
     const { data, error } = await sb
       .from('presentes')
@@ -711,18 +728,30 @@
       if (presente.escolhido) {
         card.disabled = true;
       } else {
-        card.onclick = () => escolherPresenteDireto(presente, card);
+        card.onclick = () => selecionarPresenteDireto(presente, card);
       }
       lista.appendChild(card);
     });
   }
 
-  // Trava o presente na hora do clique (sem etapa de "confirmar" separada —
-  // quanto menos passos, maior a chance da pessoa terminar de mandar o Pix).
-  async function escolherPresenteDireto(presente, cardEl) {
-    document.querySelectorAll('#giftList .gift2').forEach(c => { c.disabled = true; });
+  // Só destaca o presente escolhido — não trava nada ainda, pra dar espaço
+  // pra pessoa mudar de ideia antes de confirmar.
+  function selecionarPresenteDireto(presente, cardEl) {
+    document.querySelectorAll('#giftList .gift2').forEach(c => c.classList.remove('selected'));
     cardEl.classList.add('selected');
+    presenteEscolhidoDireto = presente;
+    document.getElementById('btnConfirmarPresente').disabled = false;
     document.getElementById('giftError').classList.remove('show');
+  }
+
+  // Só aqui o presente é travado de verdade no banco (clique em "Confirmar escolha").
+  async function confirmarEscolhaPresente() {
+    if (!presenteEscolhidoDireto) return;
+    const presente = presenteEscolhidoDireto;
+
+    const btn = document.getElementById('btnConfirmarPresente');
+    btn.disabled = true;
+    btn.textContent = 'Confirmando...';
 
     const { data: presenteAtualizado, error: erroPresente } = await sb
       .from('presentes')
@@ -731,8 +760,10 @@
       .eq('escolhido', false)
       .select();
 
+    btn.textContent = 'Confirmar escolha';
+
     if (erroPresente || !presenteAtualizado || presenteAtualizado.length === 0) {
-      // outra pessoa escolheu esse presente entre a listagem e o clique
+      // outra pessoa escolheu esse presente entre a listagem e a confirmação
       document.getElementById('giftError').classList.add('show');
       carregarPresentesDireto();
       return;
@@ -753,6 +784,13 @@
 
     prepararPix(presente);
     mostrarPresenteStep('presenteStep3');
+  }
+
+  function confirmarEnvioPresente() {
+    const nomePresente = presenteEscolhidoDireto ? presenteEscolhidoDireto.nome : 'esse presente';
+    document.getElementById('agradecimentoTexto').textContent =
+      `Muito, muito obrigado por escolher "${nomePresente}" pra gente! Cada gesto de carinho como esse significa muito nessa fase da nossa vida. Já estamos ansiosos pra comemorar com você! 💜`;
+    mostrarPresenteStep('presenteStep4');
   }
 
   function mostrarResultadoFinal(nome, vaiComparecer) {
