@@ -565,7 +565,7 @@
     const { data, error } = await sb
       .from('presentes')
       .select('*')
-      .order('ordem', { ascending: true, nullsFirst: false })
+      .order('valor', { ascending: true, nullsFirst: false })
       .order('nome', { ascending: true });
 
     if (error) {
@@ -578,19 +578,7 @@
     }
 
     lista.innerHTML = '';
-    let categoriaAtual = null;
     data.forEach(presente => {
-      const categoria = presente.categoria || null;
-      if (categoria !== categoriaAtual) {
-        categoriaAtual = categoria;
-        if (categoria) {
-          const heading = document.createElement('h4');
-          heading.className = 'gift-category';
-          heading.textContent = categoria;
-          lista.appendChild(heading);
-        }
-      }
-
       const imagem = presente.imagem_url || presente.imagem || presente.foto_url || presente.image_url || '';
 
       const card = document.createElement('button');
