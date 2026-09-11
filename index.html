@@ -214,6 +214,7 @@
     </div>
     <div class="venue-map-actions">
       <a class="btn-map" id="btnIrLocal" href="https://www.google.com/maps/dir/?api=1&destination=Av.+Comendador+Pedro+Morganti%2C+4700+-+Monte+Alegre%2C+Piracicaba+-+SP%2C+13415-000" target="_blank" rel="noopener">📍 Ir até o local</a>
+      <button type="button" class="btn-map" id="btnCopiarEndereco">📋 Copiar endereço</button>
     </div>
   </div>
 </section>
@@ -839,6 +840,43 @@
       btn.href = 'geo:0,0?q=' + encodeURIComponent(endereco);
       btn.removeAttribute('target');
     }
+  })();
+
+  // --- Botão "Copiar endereço": útil pra quem está no iPhone ou sem app de mapa
+  // configurado e quer só colar o endereço em algum lugar (WhatsApp, Notas...) ---
+  (function () {
+    const btn = document.getElementById('btnCopiarEndereco');
+    if (!btn) return;
+    const endereco = 'Palacete Monte Alegre — Av. Comendador Pedro Morganti, 4700 - Monte Alegre, Piracicaba - SP, 13415-000';
+    const textoOriginal = btn.textContent;
+    let timeoutId = null;
+
+    function copiarComFallback(texto) {
+      const textarea = document.createElement('textarea');
+      textarea.value = texto;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(textarea);
+      return ok;
+    }
+
+    btn.addEventListener('click', async () => {
+      let copiou = false;
+      try {
+        await navigator.clipboard.writeText(endereco);
+        copiou = true;
+      } catch (e) {
+        copiou = copiarComFallback(endereco);
+      }
+
+      clearTimeout(timeoutId);
+      btn.textContent = copiou ? '✅ Endereço copiado!' : '⚠️ Não foi possível copiar';
+      timeoutId = setTimeout(() => { btn.textContent = textoOriginal; }, 2200);
+    });
   })();
 
   // --- Convite pra adicionar à tela inicial ---
