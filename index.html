@@ -166,10 +166,10 @@
 <section class="venue">
   <!--
     Fotos do local: pra aparecerem no fundo desta seção, crie a pasta
-    "fotos-local" na raiz do site e suba de 1 a 4 arquivos nomeados
-    1.jpg, 2.jpg, 3.jpg e 4.jpg (pode ser .jpeg ou .png também, mas
-    todos com esse mesmo nome numérico). Não precisa usar as 4 — o
-    site mostra quantas encontrar e ignora as que faltarem.
+    "fotos-local" na raiz do site e suba arquivos nomeados 1.jpg, 2.jpg,
+    3.jpg, 4.jpg e 5.jpg (pode ser .jpeg ou .png também, mas todos com
+    esse mesmo nome numérico). Não precisa usar todas — o site mostra
+    quantas encontrar e ignora as que faltarem.
   -->
   <div class="venue-photos" id="venuePhotos" aria-hidden="true"></div>
 
@@ -767,8 +767,8 @@
   })();
 
   // --- Fotos do local ao fundo da seção "O grande dia" ---
-  // Procura fotos-local/1.jpg, 2.jpg, 3.jpg, 4.jpg (ou .jpeg/.png) e usa
-  // só as que existirem — não precisa ter as 4.
+  // Procura fotos-local/1.jpg a 5.jpg (ou .jpeg/.png) e usa
+  // só as que existirem — não precisa ter todas.
   (function () {
     const container = document.getElementById('venuePhotos');
     if (!container) return;
@@ -792,7 +792,7 @@
     }
 
     async function iniciar() {
-      const resultados = await Promise.all([1, 2, 3, 4].map(encontrarFoto));
+      const resultados = await Promise.all([1, 2, 3, 4, 5].map(encontrarFoto));
       const fotos = resultados.filter(Boolean);
       if (fotos.length === 0) return;
 
