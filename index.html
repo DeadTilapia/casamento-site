@@ -213,9 +213,7 @@
       ></iframe>
     </div>
     <div class="venue-map-actions">
-      <a class="btn-map" href="https://www.google.com/maps/dir/?api=1&destination=Av.+Comendador+Pedro+Morganti%2C+4700+-+Monte+Alegre%2C+Piracicaba+-+SP%2C+13415-000" target="_blank" rel="noopener">🗺️ Google Maps</a>
-      <a class="btn-map" href="https://waze.com/ul?q=Av.+Comendador+Pedro+Morganti%2C+4700+-+Monte+Alegre%2C+Piracicaba+-+SP%2C+13415-000&navigate=yes" target="_blank" rel="noopener">🧭 Waze</a>
-      <a class="btn-map" href="https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]=Av.+Comendador+Pedro+Morganti%2C+4700+-+Monte+Alegre%2C+Piracicaba+-+SP%2C+13415-000&dropoff[nickname]=Palacete+Monte+Alegre" target="_blank" rel="noopener">🚗 Uber</a>
+      <a class="btn-map" id="btnIrLocal" href="https://www.google.com/maps/dir/?api=1&destination=Av.+Comendador+Pedro+Morganti%2C+4700+-+Monte+Alegre%2C+Piracicaba+-+SP%2C+13415-000" target="_blank" rel="noopener">📍 Ir até o local</a>
     </div>
   </div>
 </section>
@@ -830,6 +828,17 @@
     }
 
     iniciar();
+  })();
+
+  // --- Botão "Ir até o local": no Android abre o seletor de apps de mapa/navegação ---
+  (function () {
+    const btn = document.getElementById('btnIrLocal');
+    if (!btn) return;
+    if (/android/i.test(navigator.userAgent)) {
+      const endereco = 'Av. Comendador Pedro Morganti, 4700 - Monte Alegre, Piracicaba - SP, 13415-000';
+      btn.href = 'geo:0,0?q=' + encodeURIComponent(endereco);
+      btn.removeAttribute('target');
+    }
   })();
 
   // --- Convite pra adicionar à tela inicial ---
