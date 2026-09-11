@@ -14,7 +14,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#9663c9">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -696,8 +696,8 @@
 
     const btnPix = document.getElementById('btnIrParaPix');
     if (presenteSelecionadoObj && presenteSelecionadoObj.valor) {
-      prepararPix(presenteSelecionadoObj);
       btnPix.style.display = 'inline-block';
+      prepararPix(presenteSelecionadoObj);
     } else {
       btnPix.style.display = 'none';
     }
@@ -717,10 +717,17 @@
 
     document.getElementById('pixCopiaCola').value = payload;
 
-    const canvas = document.getElementById('pixQrCanvas');
-    QRCode.toCanvas(canvas, payload, { width: 240, margin: 1 }, function (erro) {
-      if (erro) console.error('Erro ao gerar QR code do Pix:', erro);
-    });
+    // O QR visual é só um complemento — se a biblioteca não carregar por
+    // algum motivo (rede, bloqueador etc.), o botão e o copia-e-cola acima
+    // continuam funcionando normalmente.
+    try {
+      const canvas = document.getElementById('pixQrCanvas');
+      QRCode.toCanvas(canvas, payload, { width: 240, margin: 1 }, function (erro) {
+        if (erro) console.error('Erro ao gerar QR code do Pix:', erro);
+      });
+    } catch (erro) {
+      console.error('Não foi possível gerar o QR code do Pix:', erro);
+    }
   }
 
   async function enviarConfirmacao() {
