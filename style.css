@@ -290,6 +290,30 @@ nav a:hover, nav a:focus-visible {
   padding: var(--section-gap) 24px;
   text-align: center;
   position: relative;
+  z-index: 0;
+  overflow: hidden;
+}
+.venue-photos {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+.venue-photos img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.8s ease;
+}
+.venue-photos img.active { opacity: 0.32; }
+.venue-photos::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-blush-canvas);
+  opacity: 0.55;
 }
 .venue-card {
   max-width: 560px;

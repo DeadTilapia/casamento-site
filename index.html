@@ -164,6 +164,15 @@
 <svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
 
 <section class="venue">
+  <!--
+    Fotos do local: pra aparecerem no fundo desta seção, crie a pasta
+    "fotos-local" na raiz do site e suba de 1 a 4 arquivos nomeados
+    1.jpg, 2.jpg, 3.jpg e 4.jpg (pode ser .jpeg ou .png também, mas
+    todos com esse mesmo nome numérico). Não precisa usar as 4 — o
+    site mostra quantas encontrar e ignora as que faltarem.
+  -->
+  <div class="venue-photos" id="venuePhotos" aria-hidden="true"></div>
+
   <svg class="deco soft" style="top:36px;left:3%;width:52px;height:62px;transform:rotate(-8deg)" aria-hidden="true"><use href="#rabbit"/></svg>
   <svg class="deco soft" style="top:44px;right:3%;width:44px;height:38px" aria-hidden="true"><use href="#butterfly"/></svg>
 
@@ -755,6 +764,58 @@
 
     atualizarContagem();
     const intervalo = setInterval(atualizarContagem, 1000);
+  })();
+
+  // --- Fotos do local ao fundo da seção "O grande dia" ---
+  // Procura fotos-local/1.jpg, 2.jpg, 3.jpg, 4.jpg (ou .jpeg/.png) e usa
+  // só as que existirem — não precisa ter as 4.
+  (function () {
+    const container = document.getElementById('venuePhotos');
+    if (!container) return;
+
+    function tentarCarregar(caminho) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(caminho);
+        img.onerror = () => resolve(null);
+        img.src = caminho;
+      });
+    }
+
+    async function encontrarFoto(numero) {
+      for (const ext of ['jpg', 'jpeg', 'png']) {
+        const caminho = `fotos-local/${numero}.${ext}`;
+        const ok = await tentarCarregar(caminho);
+        if (ok) return ok;
+      }
+      return null;
+    }
+
+    async function iniciar() {
+      const resultados = await Promise.all([1, 2, 3, 4].map(encontrarFoto));
+      const fotos = resultados.filter(Boolean);
+      if (fotos.length === 0) return;
+
+      fotos.forEach((src, i) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'Foto do Palacete Monte Alegre';
+        if (i === 0) img.classList.add('active');
+        container.appendChild(img);
+      });
+
+      if (fotos.length > 1) {
+        let atual = 0;
+        setInterval(() => {
+          const imgs = container.querySelectorAll('img');
+          imgs[atual].classList.remove('active');
+          atual = (atual + 1) % imgs.length;
+          imgs[atual].classList.add('active');
+        }, 5000);
+      }
+    }
+
+    iniciar();
   })();
 
   // --- Convite pra adicionar à tela inicial ---
