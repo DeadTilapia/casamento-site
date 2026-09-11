@@ -815,6 +815,36 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   outline: none;
   border-color: var(--color-coral-vermillion);
 }
+
+/* PAGAMENTO VIA PIX (etapa 5 do RSVP) */
+.pix-valor {
+  font-family: var(--font-display);
+  font-size: 32px;
+  color: var(--color-coral-vermillion);
+  margin: -6px 0 20px;
+}
+.pix-qr-frame {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: var(--color-pure-white);
+  border: 1.5px solid var(--color-sage-mist);
+  border-radius: 16px;
+  margin-bottom: 22px;
+}
+.pix-qr-frame canvas { max-width: 100%; height: auto; }
+.pix-copia-cola {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--color-sage-mist);
+  border-radius: 12px;
+  font-family: ui-monospace, 'SF Mono', 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-ink-navy);
+  background: var(--color-blush-canvas);
+  resize: none;
+}
 .btn-solid {
   display: inline-block;
   border: none;

@@ -14,6 +14,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#9663c9">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -375,6 +376,31 @@
         <p class="install-tip" style="display:none"></p>
       </div>
 
+      <button class="btn-solid" id="btnIrParaPix" style="display:none" onclick="mostrarStep('step5')">💜 Fazer o Pix agora</button>
+      <button class="btn-solid" onclick="fecharRSVP()">Fechar</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 5: PAGAMENTO VIA PIX (só aparece se escolheu um presente com valor) -->
+  <div class="flow-step" id="step5">
+    <div class="flow-narrow">
+      <div class="flow-eyebrow">Pagamento via Pix</div>
+      <h3 class="flow-title">Pix pra <span id="pixPresenteNome">um presente</span></h3>
+      <p class="pix-valor" id="pixValor"></p>
+
+      <div class="pix-qr-frame">
+        <canvas id="pixQrCanvas"></canvas>
+      </div>
+
+      <p class="flow-lead" style="margin-bottom:8px">Ou copie o código abaixo e cole no Pix Copia e Cola do seu banco:</p>
+      <textarea class="pix-copia-cola" id="pixCopiaCola" readonly rows="3" onclick="this.select()"></textarea>
+      <button class="btn-map" id="btnCopiarPix" style="margin:10px auto 0">📋 Copiar código Pix</button>
+
+      <p class="flow-lead" style="margin-top:20px; font-size:13px; opacity:0.75">
+        Alguns bancos permitem alterar o valor antes de confirmar — pode mandar o que puder, sem pressão. 💜
+      </p>
+
+      <button class="btn-text" onclick="mostrarStep('step4')">Voltar</button>
       <button class="btn-solid" onclick="fecharRSVP()">Fechar</button>
     </div>
   </div>
@@ -399,6 +425,7 @@
 <script src="shared.js"></script>
 <script>
   let presenteSelecionado = null;
+  let presenteSelecionadoObj = null;
 
   async function carregarMensagens() {
     const grid = document.getElementById('messagesGrid');
@@ -483,7 +510,7 @@
   });
 
   function mostrarStep(id) {
-    ['step1','step2','step3','step4'].forEach(s => document.getElementById(s).classList.remove('active'));
+    ['step1','step2','step3','step4','step5'].forEach(s => document.getElementById(s).classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.getElementById('rsvpModal').scrollTo(0, 0);
   }
@@ -505,12 +532,14 @@
     document.getElementById('inputAdultos').value = '1';
     document.getElementById('inputCriancas').value = '0';
     presenteSelecionado = null;
+    presenteSelecionadoObj = null;
     comparecera = null;
     document.getElementById('btnPresencaSim').classList.remove('active');
     document.getElementById('btnPresencaNao').classList.remove('active');
     document.getElementById('presenceQty').style.display = 'none';
     document.getElementById('btnStep2').disabled = true;
     document.getElementById('giftError').classList.remove('show');
+    document.getElementById('btnIrParaPix').style.display = 'none';
   }
 
   function irParaStep2() {
@@ -541,6 +570,7 @@
 
   function pularPresente() {
     presenteSelecionado = null;
+    presenteSelecionadoObj = null;
     document.querySelectorAll('.gift2').forEach(c => c.classList.remove('selected'));
     irParaStep3();
   }
@@ -632,16 +662,17 @@
       if (presente.escolhido) {
         card.disabled = true;
       } else {
-        card.onclick = () => selecionarPresente(presente.id, card);
+        card.onclick = () => selecionarPresente(presente, card);
       }
       lista.appendChild(card);
     });
   }
 
-  function selecionarPresente(id, cardEl) {
+  function selecionarPresente(presente, cardEl) {
     document.querySelectorAll('.gift2').forEach(c => c.classList.remove('selected'));
     cardEl.classList.add('selected');
-    presenteSelecionado = id;
+    presenteSelecionado = presente.id;
+    presenteSelecionadoObj = presente;
     document.getElementById('btnStep2').disabled = false;
     document.getElementById('giftError').classList.remove('show');
   }
@@ -662,6 +693,34 @@
     }
 
     mostrarStep('step4');
+
+    const btnPix = document.getElementById('btnIrParaPix');
+    if (presenteSelecionadoObj && presenteSelecionadoObj.valor) {
+      prepararPix(presenteSelecionadoObj);
+      btnPix.style.display = 'inline-block';
+    } else {
+      btnPix.style.display = 'none';
+    }
+  }
+
+  function prepararPix(presente) {
+    document.getElementById('pixPresenteNome').textContent = presente.nome || 'o presente';
+    document.getElementById('pixValor').textContent = formatarValor(presente.valor);
+
+    const payload = gerarPayloadPix({
+      chave: PIX_CHAVE,
+      nome: PIX_NOME,
+      cidade: PIX_CIDADE,
+      valor: presente.valor,
+      descricao: presente.nome,
+    });
+
+    document.getElementById('pixCopiaCola').value = payload;
+
+    const canvas = document.getElementById('pixQrCanvas');
+    QRCode.toCanvas(canvas, payload, { width: 240, margin: 1 }, function (erro) {
+      if (erro) console.error('Erro ao gerar QR code do Pix:', erro);
+    });
   }
 
   async function enviarConfirmacao() {
@@ -839,30 +898,26 @@
     const textoOriginal = btn.textContent;
     let timeoutId = null;
 
-    function copiarComFallback(texto) {
-      const textarea = document.createElement('textarea');
-      textarea.value = texto;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      let ok = false;
-      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
-      document.body.removeChild(textarea);
-      return ok;
-    }
-
     btn.addEventListener('click', async () => {
-      let copiou = false;
-      try {
-        await navigator.clipboard.writeText(endereco);
-        copiou = true;
-      } catch (e) {
-        copiou = copiarComFallback(endereco);
-      }
-
+      const copiou = await copiarTexto(endereco);
       clearTimeout(timeoutId);
       btn.textContent = copiou ? '✅ Endereço copiado!' : '⚠️ Não foi possível copiar';
+      timeoutId = setTimeout(() => { btn.textContent = textoOriginal; }, 2200);
+    });
+  })();
+
+  // --- Botão "Copiar código Pix" (etapa 5 do RSVP) ---
+  (function () {
+    const btn = document.getElementById('btnCopiarPix');
+    if (!btn) return;
+    const textoOriginal = btn.textContent;
+    let timeoutId = null;
+
+    btn.addEventListener('click', async () => {
+      const codigo = document.getElementById('pixCopiaCola').value;
+      const copiou = codigo ? await copiarTexto(codigo) : false;
+      clearTimeout(timeoutId);
+      btn.textContent = copiou ? '✅ Código copiado!' : '⚠️ Não foi possível copiar';
       timeoutId = setTimeout(() => { btn.textContent = textoOriginal; }, 2200);
     });
   })();
