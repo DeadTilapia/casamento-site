@@ -453,7 +453,7 @@
 
     const { data, error } = await sb
       .from('confirmacoes')
-      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas')
+      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas, presente_id')
       .is('convidado_id', null)
       .order('criado_em', { ascending: false });
 
@@ -462,6 +462,10 @@
       return;
     }
 
+    const { data: presentes } = await sb.from('presentes').select('id, nome');
+    const nomePresenteMap = {};
+    (presentes || []).forEach(p => { nomePresenteMap[p.id] = p.nome; });
+
     cacheConfirmacoesSemVinculo = data;
     box.style.display = 'block';
 
@@ -469,9 +473,15 @@
       .map(c => `<option value="${c.id}">${escapeHtml(c.nome)}</option>`)
       .join('');
 
-    list.innerHTML = data.map(conf => `
+    list.innerHTML = data.map(conf => {
+      const soMandouPresente = conf.vai_comparecer === null && conf.presente_id;
+      const nomePresente = conf.presente_id ? (nomePresenteMap[conf.presente_id] || 'presente') : '';
+      const tagPresente = conf.presente_id
+        ? `<span class="unlinked-gift-tag">🎁 ${escapeHtml(nomePresente)}${soMandouPresente ? ' — só mandou presente, não respondeu RSVP' : ''}</span>`
+        : '';
+      return `
       <div class="unlinked-item">
-        <span><strong>${escapeHtml(conf.nome_convidado)}</strong>${conf.mensagem ? ' — "' + escapeHtml(conf.mensagem) + '"' : ''}</span>
+        <span><strong>${escapeHtml(conf.nome_convidado)}</strong>${conf.mensagem ? ' — "' + escapeHtml(conf.mensagem) + '"' : ''}${tagPresente}</span>
         <select id="vinc-${conf.id}">
           <option value="">Vincular a...</option>
           ${opcoesConvidados}
@@ -479,7 +489,8 @@
         <button class="btn-outline" onclick="vincularConfirmacao('${conf.id}')">Vincular</button>
         <button class="btn-outline" onclick="criarConvidadoDeConfirmacao('${conf.id}')">Adicionar como novo</button>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
   async function vincularConfirmacao(confirmacaoId) {
@@ -492,12 +503,19 @@
     const { error } = await sb.from('confirmacoes').update({ convidado_id: convidadoId }).eq('id', confirmacaoId);
     if (error) { alert('Não foi possível vincular.'); return; }
 
-    const dadosConvidado = { status: conf && conf.vai_comparecer === false ? 'recusado' : 'confirmado' };
-    if (conf && conf.vai_comparecer) {
+    // vai_comparecer null = só mandou presente, sem responder o RSVP — nesse
+    // caso não mexe no status de presença do convidado, só vincula o registro.
+    const dadosConvidado = {};
+    if (conf && conf.vai_comparecer === false) {
+      dadosConvidado.status = 'recusado';
+    } else if (conf && conf.vai_comparecer === true) {
+      dadosConvidado.status = 'confirmado';
       dadosConvidado.adultos = conf.adultos ?? 1;
       dadosConvidado.criancas = conf.criancas ?? 0;
     }
-    await sb.from('convidados').update(dadosConvidado).eq('id', convidadoId);
+    if (Object.keys(dadosConvidado).length > 0) {
+      await sb.from('convidados').update(dadosConvidado).eq('id', convidadoId);
+    }
     carregarConvidados();
   }
 
@@ -512,7 +530,7 @@
         lado: 'ambos',
         adultos: conf.vai_comparecer ? (conf.adultos ?? 1) : 1,
         criancas: conf.vai_comparecer ? (conf.criancas ?? 0) : 0,
-        status: conf.vai_comparecer === false ? 'recusado' : 'confirmado',
+        status: conf.vai_comparecer === false ? 'recusado' : (conf.vai_comparecer === true ? 'confirmado' : 'pendente'),
       })
       .select();
 

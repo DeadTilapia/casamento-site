@@ -116,6 +116,7 @@
   <a href="#detalhes">Detalhes</a>
   <a href="#mensagens">Mensagens</a>
   <a href="#rsvp">RSVP</a>
+  <a href="#presentes">Presentes</a>
 </nav>
 
 <section class="hero" id="inicio">
@@ -277,6 +278,20 @@
 
 <svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
 
+<section class="rsvp" id="presentes">
+  <svg class="deco soft" style="bottom:-20px;right:-18px;width:130px;height:260px;transform:scaleX(-1) rotate(-8deg)" aria-hidden="true"><use href="#tulip-sprig"/></svg>
+  <svg class="deco soft" style="top:-20px;left:-18px;width:130px;height:260px;transform:rotate(-8deg)" aria-hidden="true"><use href="#tulip-sprig"/></svg>
+  <div class="rsvp-inner reveal">
+    <span class="framed-corner tr"></span><span class="framed-corner bl"></span>
+    <div style="font-size:40px; margin-bottom:4px">🎁</div>
+    <h2 class="rsvp-heading">Quer nos presentear?</h2>
+    <p class="rsvp-sub">Escolha um presente da nossa listinha — o Pix já vem certinho com o valor, é rapidinho.</p>
+    <button class="btn-outline" onclick="abrirPresentes()">Escolher um presente</button>
+  </div>
+</section>
+
+<svg class="divider" aria-hidden="true"><use href="#divider-vine"/></svg>
+
 <section class="messages" id="mensagens">
   <svg class="deco soft" style="top:40px;left:3%;width:52px;height:58px" aria-hidden="true"><use href="#deer"/></svg>
 
@@ -332,42 +347,29 @@
     </div>
   </div>
 
-  <!-- ETAPA 2: PRESENTES (tela própria) -->
+  <!-- ETAPA 2: MENSAGEM -->
   <div class="flow-step" id="step2">
-    <div class="flow-wide">
-      <div class="flow-eyebrow">Lista de presentes</div>
-      <h3 class="flow-title" id="giftsTitulo">Escolha um presente pra gente</h3>
-      <p class="flow-lead" id="giftsLead">Cada presente pode ser escolhido por uma só pessoa. Toque no que você quiser dar — sem pressão, sua presença já é o maior presente.</p>
-      <div class="modal-error" id="giftError">Ah, alguém escolheu esse presente antes de você. Dá uma olhada nos que ainda estão livres. 💛</div>
-      <div class="gifts-grid" id="giftList">
-        <p>Carregando presentes...</p>
-      </div>
-    </div>
-    <div class="flow-actions">
-      <button class="btn-text" onclick="voltarParaStep1()">Voltar</button>
-      <button class="btn-text" onclick="pularPresente()">Prefiro não escolher agora</button>
-      <button class="btn-solid" id="btnStep2" onclick="irParaStep3()" disabled>Continuar</button>
-    </div>
-  </div>
-
-  <!-- ETAPA 3: MENSAGEM -->
-  <div class="flow-step" id="step3">
     <div class="flow-narrow">
       <div class="flow-eyebrow">Quase lá</div>
       <h3 class="flow-title">Deixe um recadinho</h3>
       <p class="flow-lead">É opcional, mas a gente vai adorar ler. 💜</p>
       <textarea class="modal-textarea" id="inputMensagem" placeholder="Um recadinho pros noivos..."></textarea>
       <button class="btn-solid" id="btnConfirmar" onclick="enviarConfirmacao()">Confirmar presença</button>
-      <button class="btn-text" onclick="voltarParaStep2()">Voltar</button>
+      <button class="btn-text" onclick="voltarParaStep1()">Voltar</button>
     </div>
   </div>
 
-  <!-- ETAPA 4: RESULTADO -->
-  <div class="flow-step" id="step4">
+  <!-- ETAPA 3: RESULTADO -->
+  <div class="flow-step" id="step3">
     <div class="flow-narrow">
       <div class="flow-eyebrow" id="finalEyebrow">Presença confirmada</div>
       <h3 class="flow-title" id="finalTitulo">Viva! Já é oficial 🎉</h3>
       <p style="font-size:17px; line-height:1.7;" id="finalTexto"></p>
+
+      <div class="gift-cta">
+        <p class="gift-cta-text">🎁 Já pensou em mandar um presente pra gente?</p>
+        <button class="btn-solid" onclick="abrirPresentesDeDentroDoRSVP()">Escolher um presente agora</button>
+      </div>
 
       <div class="install-banner" style="display:none; margin:28px auto 0">
         <svg aria-hidden="true"><use href="#fl"/></svg>
@@ -376,13 +378,46 @@
         <p class="install-tip" style="display:none"></p>
       </div>
 
-      <button class="btn-solid" id="btnIrParaPix" style="display:none" onclick="mostrarStep('step5')">💜 Fazer o Pix agora</button>
-      <button class="btn-solid" onclick="fecharRSVP()">Fechar</button>
+      <button class="btn-text" onclick="fecharRSVP()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="rsvp-flow" id="presentesModal">
+  <div class="flow-topbar">
+    <span class="flow-brand">A <span class="amp">&amp;</span> A</span>
+    <button class="flow-close" onclick="fecharPresentes()" aria-label="Fechar">&times;</button>
+  </div>
+
+  <!-- ETAPA 1: NOME DE QUEM ESTÁ MANDANDO -->
+  <div class="flow-step active" id="presenteStep1">
+    <div class="flow-narrow">
+      <div class="flow-eyebrow">Presentes</div>
+      <h3 class="flow-title">Quem está mandando?</h3>
+      <p class="flow-lead">Só pra sabermos a quem agradecer. 💜</p>
+      <input type="text" class="modal-input" id="presenteNome" list="listaNomesConvidados" placeholder="Seu nome">
+      <button class="btn-solid" onclick="irParaEscolherPresente()">Continuar</button>
     </div>
   </div>
 
-  <!-- ETAPA 5: PAGAMENTO VIA PIX (só aparece se escolheu um presente com valor) -->
-  <div class="flow-step" id="step5">
+  <!-- ETAPA 2: ESCOLHER O PRESENTE -->
+  <div class="flow-step" id="presenteStep2">
+    <div class="flow-wide">
+      <div class="flow-eyebrow">Lista de presentes</div>
+      <h3 class="flow-title">Escolha um presente pra gente</h3>
+      <p class="flow-lead">Cada presente pode ser escolhido por uma só pessoa. Assim que você tocar em um, a gente já te leva direto pro Pix.</p>
+      <div class="modal-error" id="giftError">Ah, alguém escolheu esse presente antes de você. Dá uma olhada nos que ainda estão livres. 💛</div>
+      <div class="gifts-grid" id="giftList">
+        <p>Carregando presentes...</p>
+      </div>
+    </div>
+    <div class="flow-actions">
+      <button class="btn-text" onclick="mostrarPresenteStep('presenteStep1')">Voltar</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 3: PAGAMENTO VIA PIX -->
+  <div class="flow-step" id="presenteStep3">
     <div class="flow-narrow">
       <div class="flow-eyebrow">Pagamento via Pix</div>
       <h3 class="flow-title">Pix pra <span id="pixPresenteNome">um presente</span></h3>
@@ -400,8 +435,7 @@
         Alguns bancos permitem alterar o valor antes de confirmar — pode mandar o que puder, sem pressão. 💜
       </p>
 
-      <button class="btn-text" onclick="mostrarStep('step4')">Voltar</button>
-      <button class="btn-solid" onclick="fecharRSVP()">Fechar</button>
+      <button class="btn-solid" onclick="fecharPresentes()">Fechar</button>
     </div>
   </div>
 </div>
@@ -424,9 +458,6 @@
 
 <script src="shared.js"></script>
 <script>
-  let presenteSelecionado = null;
-  let presenteSelecionadoObj = null;
-
   async function carregarMensagens() {
     const grid = document.getElementById('messagesGrid');
     const { data, error } = await sb
@@ -506,11 +537,13 @@
   }
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') fecharRSVP();
+    if (e.key !== 'Escape') return;
+    fecharRSVP();
+    fecharPresentes();
   });
 
   function mostrarStep(id) {
-    ['step1','step2','step3','step4','step5'].forEach(s => document.getElementById(s).classList.remove('active'));
+    ['step1','step2','step3'].forEach(s => document.getElementById(s).classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.getElementById('rsvpModal').scrollTo(0, 0);
   }
@@ -531,15 +564,10 @@
     document.getElementById('inputMensagem').value = '';
     document.getElementById('inputAdultos').value = '1';
     document.getElementById('inputCriancas').value = '0';
-    presenteSelecionado = null;
-    presenteSelecionadoObj = null;
     comparecera = null;
     document.getElementById('btnPresencaSim').classList.remove('active');
     document.getElementById('btnPresencaNao').classList.remove('active');
     document.getElementById('presenceQty').style.display = 'none';
-    document.getElementById('btnStep2').disabled = true;
-    document.getElementById('giftError').classList.remove('show');
-    document.getElementById('btnIrParaPix').style.display = 'none';
   }
 
   function irParaStep2() {
@@ -555,31 +583,11 @@
 
     if (comparecera === null) { alert('Conta pra gente se você vai poder vir!'); return; }
 
-    document.getElementById('giftsTitulo').textContent = comparecera
-      ? 'Escolha um presente pra gente'
-      : 'Quer escolher um presente mesmo assim?';
-    document.getElementById('giftsLead').textContent = comparecera
-      ? 'Cada presente pode ser escolhido por uma só pessoa. Toque no que você quiser dar — sem pressão, sua presença já é o maior presente.'
-      : 'Poxa, vamos sentir sua falta! Se quiser mandar um presente mesmo não podendo vir, fique à vontade — ou só siga em frente.';
-
+    document.getElementById('btnConfirmar').textContent = comparecera ? 'Confirmar presença' : 'Enviar resposta';
     mostrarStep('step2');
-    carregarPresentes();
   }
 
   function voltarParaStep1() { mostrarStep('step1'); }
-
-  function pularPresente() {
-    presenteSelecionado = null;
-    presenteSelecionadoObj = null;
-    document.querySelectorAll('.gift2').forEach(c => c.classList.remove('selected'));
-    irParaStep3();
-  }
-
-  function irParaStep3() {
-    document.getElementById('btnConfirmar').textContent = comparecera ? 'Confirmar presença' : 'Enviar resposta';
-    mostrarStep('step3');
-  }
-  function voltarParaStep2() { mostrarStep('step2'); }
 
   function formatarValor(valor) {
     const n = Number(valor);
@@ -588,7 +596,48 @@
     return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: n % 1 === 0 ? 0 : 2 });
   }
 
-  async function carregarPresentes() {
+  // --- Modal de Presentes: separado do RSVP, pra quem quiser mandar um
+  // presente sem precisar confirmar presença (ou pra quem já confirmou e
+  // volta ao site só pra isso). ---
+  function abrirPresentes(nomePreenchido) {
+    document.getElementById('presentesModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('presenteNome').value = nomePreenchido || '';
+    document.getElementById('giftError').classList.remove('show');
+    if (nomePreenchido) {
+      irParaEscolherPresente();
+    } else {
+      mostrarPresenteStep('presenteStep1');
+    }
+  }
+
+  function abrirPresentesDeDentroDoRSVP() {
+    const nome = document.getElementById('inputNome').value.trim();
+    fecharRSVP();
+    abrirPresentes(nome);
+  }
+
+  function fecharPresentes() {
+    const modal = document.getElementById('presentesModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function mostrarPresenteStep(id) {
+    ['presenteStep1', 'presenteStep2', 'presenteStep3'].forEach(s => document.getElementById(s).classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById('presentesModal').scrollTo(0, 0);
+  }
+
+  function irParaEscolherPresente() {
+    const nome = document.getElementById('presenteNome').value.trim();
+    if (!nome) { alert('Digite seu nome pra continuar.'); return; }
+    mostrarPresenteStep('presenteStep2');
+    carregarPresentesDireto();
+  }
+
+  async function carregarPresentesDireto() {
     const lista = document.getElementById('giftList');
     lista.innerHTML = '<p>Carregando presentes...</p>';
 
@@ -662,19 +711,48 @@
       if (presente.escolhido) {
         card.disabled = true;
       } else {
-        card.onclick = () => selecionarPresente(presente, card);
+        card.onclick = () => escolherPresenteDireto(presente, card);
       }
       lista.appendChild(card);
     });
   }
 
-  function selecionarPresente(presente, cardEl) {
-    document.querySelectorAll('.gift2').forEach(c => c.classList.remove('selected'));
+  // Trava o presente na hora do clique (sem etapa de "confirmar" separada —
+  // quanto menos passos, maior a chance da pessoa terminar de mandar o Pix).
+  async function escolherPresenteDireto(presente, cardEl) {
+    document.querySelectorAll('#giftList .gift2').forEach(c => { c.disabled = true; });
     cardEl.classList.add('selected');
-    presenteSelecionado = presente.id;
-    presenteSelecionadoObj = presente;
-    document.getElementById('btnStep2').disabled = false;
     document.getElementById('giftError').classList.remove('show');
+
+    const { data: presenteAtualizado, error: erroPresente } = await sb
+      .from('presentes')
+      .update({ escolhido: true })
+      .eq('id', presente.id)
+      .eq('escolhido', false)
+      .select();
+
+    if (erroPresente || !presenteAtualizado || presenteAtualizado.length === 0) {
+      // outra pessoa escolheu esse presente entre a listagem e o clique
+      document.getElementById('giftError').classList.add('show');
+      carregarPresentesDireto();
+      return;
+    }
+
+    const nome = document.getElementById('presenteNome').value.trim();
+    const convidadoCorrespondente = listaConvidadosPublica.find(
+      c => c.nome.trim().toLowerCase() === nome.toLowerCase()
+    );
+    const convidadoId = convidadoCorrespondente ? convidadoCorrespondente.id : null;
+
+    await sb.from('confirmacoes').insert({
+      nome_convidado: nome,
+      presente_id: presente.id,
+      convidado_id: convidadoId,
+      vai_comparecer: null,
+    });
+
+    prepararPix(presente);
+    mostrarPresenteStep('presenteStep3');
   }
 
   function mostrarResultadoFinal(nome, vaiComparecer) {
@@ -692,15 +770,7 @@
       texto.textContent = `Obrigado por avisar, ${nome}! Vamos sentir sua falta, mas ficamos gratos por você ter pensado na gente. Se mudar de ideia, é só chamar a gente! 💜`;
     }
 
-    mostrarStep('step4');
-
-    const btnPix = document.getElementById('btnIrParaPix');
-    if (presenteSelecionadoObj && presenteSelecionadoObj.valor) {
-      btnPix.style.display = 'inline-block';
-      prepararPix(presenteSelecionadoObj);
-    } else {
-      btnPix.style.display = 'none';
-    }
+    mostrarStep('step3');
   }
 
   function prepararPix(presente) {
@@ -740,28 +810,6 @@
     btn.disabled = true;
     btn.textContent = 'Enviando...';
 
-    // Só tenta "travar" o presente se algum foi escolhido — a etapa é opcional agora
-    if (presenteSelecionado) {
-      const { data: presenteAtualizado, error: erroPresente } = await sb
-        .from('presentes')
-        .update({ escolhido: true })
-        .eq('id', presenteSelecionado)
-        .eq('escolhido', false)
-        .select();
-
-      if (erroPresente || !presenteAtualizado || presenteAtualizado.length === 0) {
-        // outra pessoa escolheu esse presente entre a listagem e o envio
-        mostrarStep('step2');
-        document.getElementById('giftError').classList.add('show');
-        document.getElementById('btnStep2').disabled = true;
-        presenteSelecionado = null;
-        carregarPresentes();
-        btn.disabled = false;
-        btn.textContent = comparecera ? 'Confirmar presença' : 'Enviar resposta';
-        return;
-      }
-    }
-
     // Tenta casar o nome digitado com alguém da lista de convidados (autocomplete).
     // Se não bater com ninguém, a confirmação segue sem vínculo — os noivos resolvem depois.
     const convidadoCorrespondente = listaConvidadosPublica.find(
@@ -774,7 +822,6 @@
       .insert({
         nome_convidado: nome,
         telefone,
-        presente_id: presenteSelecionado,
         mensagem: mensagem || null,
         convidado_id: convidadoId,
         vai_comparecer: comparecera,

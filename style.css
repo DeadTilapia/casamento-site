@@ -590,6 +590,20 @@ footer {
 }
 footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-vermillion); stroke-width: 1.3; display: block; margin: 0 auto 18px; }
 
+/* CHAMADA PRA MANDAR PRESENTE (dentro do resultado do RSVP) */
+.gift-cta {
+  margin: 28px auto 0;
+  padding: 22px;
+  background: var(--color-blush-canvas);
+  border: 1.5px solid var(--color-sage-mist);
+  border-radius: 16px;
+}
+.gift-cta-text {
+  font-size: 15px;
+  margin-bottom: 14px;
+}
+.gift-cta .btn-solid { margin: 0; }
+
 /* CONVITE PRA ADICIONAR À TELA INICIAL */
 .install-banner {
   max-width: 440px;
@@ -1131,6 +1145,12 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 }
 .unlinked-item strong { color: var(--color-lilac-deep); }
 .unlinked-item select { padding: 6px 8px; border: 1px solid var(--color-sage-mist); border-radius: 6px; font-size: 13px; }
+.unlinked-gift-tag {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-forest-ink);
+  font-size: 12px;
+}
 .unlinked-item .btn-outline { padding: 6px 14px; font-size: 11px; }
 
 /* MESAS (arrastar e soltar) */
