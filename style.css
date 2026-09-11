@@ -307,13 +307,16 @@ nav a:hover, nav a:focus-visible {
   opacity: 0;
   transition: opacity 1.8s ease;
 }
-.venue-photos img.active { opacity: 0.32; }
+.venue-photos img.active { opacity: 0.55; }
 .venue-photos::after {
   content: "";
   position: absolute;
   inset: 0;
   background: var(--color-blush-canvas);
-  opacity: 0.55;
+  opacity: 0.38;
+}
+@media (max-width: 600px) {
+  .venue { padding-top: calc(var(--section-gap) + 60px); padding-bottom: calc(var(--section-gap) + 60px); }
 }
 .venue-card {
   max-width: 560px;
