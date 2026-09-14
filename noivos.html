@@ -49,6 +49,7 @@
 
     <div class="noivos-tabs">
       <button class="noivos-tab-btn active" id="tabBtnConvidados" onclick="mostrarAbaNoivos('convidados')">Convidados</button>
+      <button class="noivos-tab-btn" id="tabBtnMensagens" onclick="mostrarAbaNoivos('mensagens')">Mensagens</button>
       <button class="noivos-tab-btn" id="tabBtnMesas" onclick="mostrarAbaNoivos('mesas')">Mesas</button>
       <button class="noivos-tab-btn" id="tabBtnPadrinhos" onclick="mostrarAbaNoivos('padrinhos')">Padrinhos</button>
       <button class="noivos-tab-btn" id="tabBtnOrganizacao" onclick="mostrarAbaNoivos('organizacao')">Organização</button>
@@ -126,6 +127,17 @@
         </p>
         <div id="unlinkedList"></div>
       </div>
+    </div>
+
+    <!-- ABA: MENSAGENS -->
+    <div class="noivos-tab-panel" id="tabMensagens">
+      <p class="flow-lead" style="text-align:left">
+        Mande mensagem pelo WhatsApp com um clique só — o texto já vem pronto pra situação
+        de cada convidado, é só apertar enviar (ou ajustar antes, se quiser). Cadastre o
+        telefone aqui embaixo pra quem ainda não tiver.
+      </p>
+      <div class="guests-summary" id="msgSummary"></div>
+      <div id="msgGroups"><p>Carregando...</p></div>
     </div>
 
     <!-- ABA: MESAS -->
@@ -254,7 +266,7 @@
   if (desbloqueado) carregarConvidados();
 
   // --- Abas: Convidados (home), Organização, Financeiro ---
-  const ABAS = ['convidados', 'mesas', 'padrinhos', 'organizacao', 'financeiro'];
+  const ABAS = ['convidados', 'mensagens', 'mesas', 'padrinhos', 'organizacao', 'financeiro'];
 
   function mostrarAbaNoivos(aba) {
     ABAS.forEach(a => {
@@ -262,6 +274,7 @@
       document.getElementById('tabBtn' + capitalizar(a)).classList.toggle('active', a === aba);
     });
     if (aba === 'convidados') carregarConvidados();
+    if (aba === 'mensagens') carregarMensagensDashboard();
     if (aba === 'padrinhos') carregarPadrinhos();
     if (aba === 'mesas') carregarMesas();
   }
@@ -398,7 +411,7 @@
             <option value="recusado" ${status === 'recusado' ? 'selected' : ''}>Recusou</option>
           </select>
         </td>
-        <td>${escapeHtml(info.telefone) || '—'}</td>
+        <td><input value="${escapeHtml(c.telefone || info.telefone || '')}" placeholder="—" onchange="atualizarConvidado('${c.id}','telefone',this.value)"></td>
         <td>${escapeHtml(info.presente) || '—'}</td>
         <td><input value="${escapeHtml(c.observacoes)}" onchange="atualizarConvidado('${c.id}','observacoes',this.value)"></td>
         <td><button class="guests-remove" onclick="removerConvidado('${c.id}')">Remover</button></td>
@@ -453,7 +466,7 @@
 
     const { data, error } = await sb
       .from('confirmacoes')
-      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas, presente_id')
+      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas, presente_id, telefone')
       .is('convidado_id', null)
       .order('criado_em', { ascending: false });
 
@@ -513,6 +526,11 @@
       dadosConvidado.adultos = conf.adultos ?? 1;
       dadosConvidado.criancas = conf.criancas ?? 0;
     }
+    // Aproveita e guarda o telefone que a pessoa digitou no RSVP, se o convidado ainda não tiver um
+    const convidadoAtual = cacheConvidados.find(cv => cv.id === convidadoId);
+    if (conf && conf.telefone && convidadoAtual && !convidadoAtual.telefone) {
+      dadosConvidado.telefone = conf.telefone;
+    }
     if (Object.keys(dadosConvidado).length > 0) {
       await sb.from('convidados').update(dadosConvidado).eq('id', convidadoId);
     }
@@ -531,6 +549,7 @@
         adultos: conf.vai_comparecer ? (conf.adultos ?? 1) : 1,
         criancas: conf.vai_comparecer ? (conf.criancas ?? 0) : 0,
         status: conf.vai_comparecer === false ? 'recusado' : (conf.vai_comparecer === true ? 'confirmado' : 'pendente'),
+        telefone: conf.telefone || null,
       })
       .select();
 
@@ -538,6 +557,97 @@
 
     await sb.from('confirmacoes').update({ convidado_id: data[0].id }).eq('id', confirmacaoId);
     carregarConvidados();
+  }
+
+  // --- Aba Mensagens: dashboard pra mandar WhatsApp com um clique, separado por situação ---
+  // TODO: troque pelo link real do site assim que estiver definido.
+  const SITE_URL = 'https://SEU-LINK-AQUI.vercel.app';
+
+  function linkWhatsapp(telefone, mensagem) {
+    const digitos = String(telefone || '').replace(/\D/g, '');
+    const comCodigoPais = digitos.length <= 11 ? '55' + digitos : digitos;
+    return `https://wa.me/${comCodigoPais}?text=${encodeURIComponent(mensagem)}`;
+  }
+
+  function primeiroNomeDoGrupo(nomeCompleto) {
+    return (nomeCompleto || '').split(/[\s+]/)[0] || 'você';
+  }
+
+  function mensagemPendente(nome) {
+    return `Oi, ${nome}! Tudo bem? Só passando pra lembrar de confirmar sua presença no nosso casamento — é rapidinho! É só entrar aqui: ${SITE_URL} 💜`;
+  }
+  function mensagemConfirmadoSemPresente(nome) {
+    return `Oi, ${nome}! Que alegria saber que você vai estar com a gente! Se quiser, temos uma listinha de presentes no site (com Pix já pronto, sem pressão nenhuma): ${SITE_URL} 💜`;
+  }
+  function mensagemConfirmadoComPresente(nome) {
+    return `Oi, ${nome}! Muito obrigado por confirmar presença e pelo carinho do presente! Mal podemos esperar pra te ver no nosso grande dia! 💜`;
+  }
+  function mensagemRecusado(nome) {
+    return `Oi, ${nome}! Que pena que você não vai poder vir, vamos sentir sua falta! Obrigado por avisar, e se mudar de ideia é só chamar a gente. 💜`;
+  }
+
+  async function carregarMensagensDashboard() {
+    const cont = document.getElementById('msgGroups');
+    cont.innerHTML = '<p>Carregando...</p>';
+
+    if (cacheConvidados.length === 0) {
+      await carregarConvidados();
+    }
+
+    const { data: confirmacoesComPresente } = await sb
+      .from('confirmacoes')
+      .select('convidado_id, presente_id')
+      .not('convidado_id', 'is', null)
+      .not('presente_id', 'is', null);
+
+    const idsComPresente = new Set((confirmacoesComPresente || []).map(c => c.convidado_id));
+
+    const pendentes = cacheConvidados.filter(c => (c.status || 'pendente') === 'pendente');
+    const confirmadosComPresente = cacheConvidados.filter(c => c.status === 'confirmado' && idsComPresente.has(c.id));
+    const confirmadosSemPresente = cacheConvidados.filter(c => c.status === 'confirmado' && !idsComPresente.has(c.id));
+    const recusados = cacheConvidados.filter(c => c.status === 'recusado');
+
+    document.getElementById('msgSummary').innerHTML = `
+      <div class="guests-stat"><strong>${pendentes.length}</strong><span>Não responderam</span></div>
+      <div class="guests-stat"><strong>${confirmadosSemPresente.length}</strong><span>Confirmaram, sem presente</span></div>
+      <div class="guests-stat"><strong>${confirmadosComPresente.length}</strong><span>Confirmaram + presente</span></div>
+      <div class="guests-stat"><strong>${recusados.length}</strong><span>Não vão poder ir</span></div>
+    `;
+
+    cont.innerHTML =
+      renderGrupoMensagem('⏳ Não responderam ainda', pendentes, mensagemPendente) +
+      renderGrupoMensagem('🎁 Confirmaram, mas ainda não escolheram presente', confirmadosSemPresente, mensagemConfirmadoSemPresente) +
+      renderGrupoMensagem('💜 Confirmaram e já escolheram presente', confirmadosComPresente, mensagemConfirmadoComPresente) +
+      renderGrupoMensagem('💭 Não vão poder vir', recusados, mensagemRecusado);
+  }
+
+  function renderGrupoMensagem(titulo, lista, gerarMensagem) {
+    if (lista.length === 0) {
+      return `
+        <div class="msg-group">
+          <h4>${titulo} <span class="msg-count">0</span></h4>
+          <p class="msg-empty">Ninguém nessa situação agora. 🎉</p>
+        </div>
+      `;
+    }
+
+    const linhas = lista.map(c => {
+      const tel = c.telefone || '';
+      const mensagem = gerarMensagem(primeiroNomeDoGrupo(c.nome));
+      const acao = tel
+        ? `<a class="btn-map" href="${linkWhatsapp(tel, mensagem)}" target="_blank" rel="noopener">💬 Mandar mensagem</a>`
+        : `<span class="msg-sem-telefone">Sem telefone</span>`;
+      return `
+        <div class="msg-row">
+          <span class="msg-nome">${escapeHtml(c.nome)}</span>
+          <input type="tel" class="msg-telefone" placeholder="Telefone (com DDD)" value="${escapeHtml(tel)}"
+                 onchange="atualizarConvidado('${c.id}','telefone',this.value).then(carregarMensagensDashboard)">
+          ${acao}
+        </div>
+      `;
+    }).join('');
+
+    return `<div class="msg-group"><h4>${titulo} <span class="msg-count">${lista.length}</span></h4>${linhas}</div>`;
   }
 
   // --- Padrinhos e madrinhas (casais, aparecem pros convidados na página principal) ---

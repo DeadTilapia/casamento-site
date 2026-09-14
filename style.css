@@ -1153,6 +1153,52 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 }
 .unlinked-item .btn-outline { padding: 6px 14px; font-size: 11px; }
 
+/* ABA MENSAGENS (dashboard de WhatsApp) */
+.msg-group { margin-bottom: 32px; }
+.msg-group h4 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-lilac-deep);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.msg-count {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--color-blush-canvas);
+  color: var(--color-ink-navy);
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+.msg-empty { font-size: 13px; opacity: 0.6; }
+.msg-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  background: var(--color-pure-white);
+  border: 1px solid var(--color-sage-mist);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.msg-nome { flex: 1; min-width: 140px; font-weight: 500; }
+.msg-telefone {
+  width: 160px;
+  padding: 7px 10px;
+  border: 1px solid var(--color-sage-mist);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--font-body);
+}
+.msg-sem-telefone { font-size: 12px; opacity: 0.55; font-style: italic; }
+.msg-row .btn-map { padding: 7px 16px; font-size: 12px; }
+
 /* MESAS (arrastar e soltar) */
 .mesas-toolbar {
   display: flex;
