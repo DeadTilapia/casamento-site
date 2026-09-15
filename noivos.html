@@ -565,7 +565,7 @@
   function linkWhatsapp(telefone, mensagem) {
     const digitos = String(telefone || '').replace(/\D/g, '');
     const comCodigoPais = digitos.length <= 11 ? '55' + digitos : digitos;
-    return `https://wa.me/${comCodigoPais}?text=${encodeURIComponent(mensagem)}`;
+    return `https://b.whatsapp.com/send?phone=${comCodigoPais}&text=${encodeURIComponent(mensagem)}`;
   }
 
   function primeiroNomeDoGrupo(nomeCompleto) {
