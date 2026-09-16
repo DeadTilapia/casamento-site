@@ -323,8 +323,7 @@
       <div class="flow-eyebrow">Confirmação de presença</div>
       <h3 class="flow-title">Vamos confirmar sua presença</h3>
       <p class="flow-lead">Pra começar, nos conta quem é você e se vai poder vir.</p>
-      <input type="text" class="modal-input" id="inputNome" list="listaNomesConvidados" placeholder="Seu nome (como está no convite)">
-      <datalist id="listaNomesConvidados"></datalist>
+      <input type="text" class="modal-input" id="inputNome" placeholder="Seu nome (como está no convite)">
 
       <input type="tel" class="modal-input" id="inputTelefone" placeholder="Seu WhatsApp com DDD (ex: 16 99999-9999)" style="margin-top:10px">
 
@@ -396,7 +395,7 @@
       <div class="flow-eyebrow">Presentes</div>
       <h3 class="flow-title">Quem está mandando?</h3>
       <p class="flow-lead">Só pra sabermos a quem agradecer. 💜</p>
-      <input type="text" class="modal-input" id="presenteNome" list="listaNomesConvidados" placeholder="Seu nome">
+      <input type="text" class="modal-input" id="presenteNome" placeholder="Seu nome (como está no convite)">
       <button class="btn-solid" onclick="irParaEscolherPresente()">Continuar</button>
     </div>
   </div>
@@ -509,17 +508,14 @@
   }
   carregarMensagens();
 
-  // --- Autocomplete de nomes (lista de convidados) usado no RSVP público ---
+  // Lista de convidados usada só internamente, pra bater o nome digitado com o
+  // grupo certo (sem mostrar dropdown nenhum — a pessoa digita como está no convite).
   let listaConvidadosPublica = [];
 
   async function carregarNomesConvidados() {
     const { data, error } = await sb.from('convidados').select('id, nome').order('nome');
     if (error || !data) return;
     listaConvidadosPublica = data;
-    const datalist = document.getElementById('listaNomesConvidados');
-    if (datalist) {
-      datalist.innerHTML = data.map(c => `<option value="${escapeHtml(c.nome)}"></option>`).join('');
-    }
   }
   carregarNomesConvidados();
 
