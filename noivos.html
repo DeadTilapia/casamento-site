@@ -32,11 +32,13 @@
     <svg class="noivos-lock-icon" aria-hidden="true"><use href="#ic-lock"/></svg>
     <div class="flow-eyebrow">Espaço reservado</div>
     <h3 class="flow-title">Só para os noivos</h3>
-    <p class="flow-lead">Digite a senha combinada pra entrar.</p>
-    <input type="password" class="modal-input" id="noivosSenha" placeholder="Senha" autocomplete="off"
+    <p class="flow-lead">Entre com o login de vocês pra continuar.</p>
+    <input type="email" class="modal-input" id="noivosEmail" placeholder="E-mail" autocomplete="username"
            onkeydown="if(event.key==='Enter'){event.preventDefault();entrarNoivos();}">
-    <div class="modal-error" id="noivosErro">Senha incorreta. Tente de novo.</div>
-    <button class="btn-solid" onclick="entrarNoivos()">Entrar</button>
+    <input type="password" class="modal-input" id="noivosSenha" placeholder="Senha" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter'){event.preventDefault();entrarNoivos();}">
+    <div class="modal-error" id="noivosErro">E-mail ou senha incorretos. Tente de novo.</div>
+    <button class="btn-solid" id="btnEntrarNoivos" onclick="entrarNoivos()">Entrar</button>
   </div>
 </div>
 
@@ -120,10 +122,11 @@
       </div>
 
       <div class="unlinked-box" id="unlinkedBox" style="display:none">
-        <div class="unlinked-title">Confirmações sem vínculo</div>
+        <div class="unlinked-title">Respostas novas para revisar</div>
         <p class="flow-lead" style="margin-bottom:16px">
-          Essas pessoas confirmaram presença, mas o nome que digitaram não bateu com ninguém
-          da lista. Vincule a alguém já cadastrado ou adicione como novo convidado.
+          O formulário público não altera a lista sozinho — toda resposta cai aqui primeiro.
+          Quando o nome bate com alguém já cadastrado, é só clicar em "Aplicar". Quando não bate,
+          vincule a alguém da lista ou adicione como novo convidado.
         </p>
         <div id="unlinkedList"></div>
       </div>
@@ -229,41 +232,57 @@
 
 <script src="shared.js"></script>
 <script>
-  // --- Trava simples por senha ---
-  const NOIVOS_SENHA = 'alealice';
-  const NOIVOS_KEY = 'noivos_ok';
-
-  function noivosDesbloqueado() {
-    try { return localStorage.getItem(NOIVOS_KEY) === '1'; } catch (e) { return false; }
-  }
+  // --- Login de verdade (Supabase Auth) ---
   function pintarPainelNoivos(ok) {
     document.getElementById('noivosLock').style.display = ok ? 'none' : 'block';
     document.getElementById('noivosConteudo').style.display = ok ? 'block' : 'none';
   }
-  function entrarNoivos() {
-    const campo = document.getElementById('noivosSenha');
+
+  async function entrarNoivos() {
+    const emailCampo = document.getElementById('noivosEmail');
+    const senhaCampo = document.getElementById('noivosSenha');
     const erro = document.getElementById('noivosErro');
-    if (campo.value.trim().toLowerCase() === NOIVOS_SENHA) {
-      try { localStorage.setItem(NOIVOS_KEY, '1'); } catch (e) {}
-      campo.value = '';
-      erro.classList.remove('show');
-      pintarPainelNoivos(true);
-      carregarConvidados();
-    } else {
+    const btn = document.getElementById('btnEntrarNoivos');
+
+    const email = emailCampo.value.trim();
+    const senha = senhaCampo.value;
+    if (!email || !senha) {
+      erro.textContent = 'Preencha e-mail e senha.';
       erro.classList.add('show');
-      campo.select();
+      return;
     }
-  }
-  function sairNoivos() {
-    try { localStorage.removeItem(NOIVOS_KEY); } catch (e) {}
-    pintarPainelNoivos(false);
-    setTimeout(() => document.getElementById('noivosSenha').focus(), 60);
+
+    btn.disabled = true;
+    btn.textContent = 'Entrando...';
+    const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+
+    if (error) {
+      erro.textContent = 'E-mail ou senha incorretos. Tente de novo.';
+      erro.classList.add('show');
+      senhaCampo.select();
+      return;
+    }
+    erro.classList.remove('show');
+    senhaCampo.value = '';
   }
 
-  const desbloqueado = noivosDesbloqueado();
-  pintarPainelNoivos(desbloqueado);
-  if (!desbloqueado) document.getElementById('noivosSenha').focus();
-  if (desbloqueado) carregarConvidados();
+  async function sairNoivos() {
+    await sb.auth.signOut();
+  }
+
+  // onAuthStateChange dispara já na carga da página com a sessão atual (logado ou
+  // não), e de novo sempre que o login/logout mudar — não precisa de checagem à parte.
+  sb.auth.onAuthStateChange((_event, session) => {
+    const logado = !!session;
+    pintarPainelNoivos(logado);
+    if (logado) {
+      carregarConvidados();
+    } else {
+      setTimeout(() => { const el = document.getElementById('noivosEmail'); if (el) el.focus(); }, 60);
+    }
+  });
 
   // --- Abas: Convidados (home), Organização, Financeiro ---
   const ABAS = ['convidados', 'mensagens', 'mesas', 'padrinhos', 'organizacao', 'financeiro'];
@@ -459,15 +478,17 @@
     carregarConvidados();
   }
 
-  // Confirmações públicas cujo nome digitado não bateu com ninguém da lista
+  // Toda resposta pública cai aqui primeiro (RSVP e escolha de presente não alteram
+  // convidados/presentes sozinhos mais). Dois casos: o nome bateu com alguém da lista
+  // automaticamente (só falta aplicar) ou não bateu com ninguém (precisa vincular).
   async function carregarConfirmacoesSemVinculo() {
     const box = document.getElementById('unlinkedBox');
     const list = document.getElementById('unlinkedList');
 
     const { data, error } = await sb
       .from('confirmacoes')
-      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas, presente_id, telefone')
-      .is('convidado_id', null)
+      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas, presente_id, telefone, convidado_id')
+      .or('convidado_id.is.null,and(vai_comparecer.not.is.null,aplicado.eq.false)')
       .order('criado_em', { ascending: false });
 
     if (error || !data || data.length === 0) {
@@ -492,6 +513,22 @@
       const tagPresente = conf.presente_id
         ? `<span class="unlinked-gift-tag">🎁 ${escapeHtml(nomePresente)}${soMandouPresente ? ' — só mandou presente, não respondeu RSVP' : ''}</span>`
         : '';
+
+      if (conf.convidado_id) {
+        // Nome bateu automaticamente com alguém da lista — só falta aplicar a resposta.
+        const convidado = cacheConvidados.find(c => c.id === conf.convidado_id);
+        const nomeConvidado = convidado ? convidado.nome : conf.nome_convidado;
+        const resumoResposta = conf.vai_comparecer
+          ? `vai (${conf.adultos ?? 1} adulto${(conf.adultos ?? 1) === 1 ? '' : 's'}${conf.criancas ? ' + ' + conf.criancas + ' criança' + (conf.criancas === 1 ? '' : 's') : ''})`
+          : 'não vai';
+        return `
+        <div class="unlinked-item">
+          <span><strong>${escapeHtml(conf.nome_convidado)}</strong> → bate com <strong>${escapeHtml(nomeConvidado)}</strong> na lista, respondeu: ${resumoResposta}${conf.mensagem ? ' — "' + escapeHtml(conf.mensagem) + '"' : ''}${tagPresente}</span>
+          <button class="btn-outline" onclick="aplicarConfirmacaoVinculada('${conf.id}')">Aplicar</button>
+        </div>
+      `;
+      }
+
       return `
       <div class="unlinked-item">
         <span><strong>${escapeHtml(conf.nome_convidado)}</strong>${conf.mensagem ? ' — "' + escapeHtml(conf.mensagem) + '"' : ''}${tagPresente}</span>
@@ -506,6 +543,30 @@
     }).join('');
   }
 
+  // Aplica no convidado a resposta de uma confirmação que já bateu automaticamente.
+  async function aplicarConfirmacaoVinculada(confirmacaoId) {
+    const conf = cacheConfirmacoesSemVinculo.find(c => c.id === confirmacaoId);
+    if (!conf || !conf.convidado_id) return;
+
+    const dadosConvidado = {};
+    if (conf.vai_comparecer === false) {
+      dadosConvidado.status = 'recusado';
+    } else if (conf.vai_comparecer === true) {
+      dadosConvidado.status = 'confirmado';
+      dadosConvidado.adultos = conf.adultos ?? 1;
+      dadosConvidado.criancas = conf.criancas ?? 0;
+    }
+    const convidadoAtual = cacheConvidados.find(cv => cv.id === conf.convidado_id);
+    if (conf.telefone && convidadoAtual && !convidadoAtual.telefone) {
+      dadosConvidado.telefone = conf.telefone;
+    }
+    if (Object.keys(dadosConvidado).length > 0) {
+      await sb.from('convidados').update(dadosConvidado).eq('id', conf.convidado_id);
+    }
+    await sb.from('confirmacoes').update({ aplicado: true }).eq('id', confirmacaoId);
+    carregarConvidados();
+  }
+
   async function vincularConfirmacao(confirmacaoId) {
     const select = document.getElementById('vinc-' + confirmacaoId);
     const convidadoId = select.value;
@@ -513,7 +574,7 @@
 
     const conf = cacheConfirmacoesSemVinculo.find(c => c.id === confirmacaoId);
 
-    const { error } = await sb.from('confirmacoes').update({ convidado_id: convidadoId }).eq('id', confirmacaoId);
+    const { error } = await sb.from('confirmacoes').update({ convidado_id: convidadoId, aplicado: true }).eq('id', confirmacaoId);
     if (error) { alert('Não foi possível vincular.'); return; }
 
     // vai_comparecer null = só mandou presente, sem responder o RSVP — nesse
@@ -555,7 +616,7 @@
 
     if (error || !data || !data[0]) { alert('Não foi possível criar o convidado.'); return; }
 
-    await sb.from('confirmacoes').update({ convidado_id: data[0].id }).eq('id', confirmacaoId);
+    await sb.from('confirmacoes').update({ convidado_id: data[0].id, aplicado: true }).eq('id', confirmacaoId);
     carregarConvidados();
   }
 

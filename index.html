@@ -760,6 +760,9 @@
   }
 
   // Só aqui o presente é travado de verdade no banco (clique em "Confirmar escolha").
+  // A trava em si (evitar duas pessoas levando o mesmo presente) e o registro da
+  // resposta acontecem atrás de uma função no banco (escolher_presente) — o site
+  // não tem mais permissão de alterar a tabela "presentes" diretamente.
   async function confirmarEscolhaPresente() {
     if (!presenteEscolhidoDireto) return;
     const presente = presenteEscolhidoDireto;
@@ -768,34 +771,26 @@
     btn.disabled = true;
     btn.textContent = 'Confirmando...';
 
-    const { data: presenteAtualizado, error: erroPresente } = await sb
-      .from('presentes')
-      .update({ escolhido: true })
-      .eq('id', presente.id)
-      .eq('escolhido', false)
-      .select();
-
-    btn.textContent = 'Confirmar escolha';
-
-    if (erroPresente || !presenteAtualizado || presenteAtualizado.length === 0) {
-      // outra pessoa escolheu esse presente entre a listagem e a confirmação
-      document.getElementById('giftError').classList.add('show');
-      carregarPresentesDireto();
-      return;
-    }
-
     const nome = document.getElementById('presenteNome').value.trim();
     const convidadoCorrespondente = listaConvidadosPublica.find(
       c => c.nome.trim().toLowerCase() === nome.toLowerCase()
     );
     const convidadoId = convidadoCorrespondente ? convidadoCorrespondente.id : null;
 
-    await sb.from('confirmacoes').insert({
-      nome_convidado: nome,
-      presente_id: presente.id,
-      convidado_id: convidadoId,
-      vai_comparecer: null,
+    const { data: presenteConfirmado, error: erroPresente } = await sb.rpc('escolher_presente', {
+      p_presente_id: presente.id,
+      p_nome: nome,
+      p_convidado_id: convidadoId,
     });
+
+    btn.textContent = 'Confirmar escolha';
+
+    if (erroPresente || !presenteConfirmado) {
+      // outra pessoa escolheu esse presente entre a listagem e a confirmação
+      document.getElementById('giftError').classList.add('show');
+      carregarPresentesDireto();
+      return;
+    }
 
     prepararPix(presente);
     mostrarPresenteStep('presenteStep3');
@@ -888,15 +883,6 @@
     if (erroConfirmacao) {
       alert('Algo deu errado ao confirmar. Tente novamente em instantes.');
       return;
-    }
-
-    if (convidadoId) {
-      const dadosConvidado = { status: comparecera ? 'confirmado' : 'recusado' };
-      if (comparecera) {
-        dadosConvidado.adultos = adultos;
-        dadosConvidado.criancas = criancas;
-      }
-      await sb.from('convidados').update(dadosConvidado).eq('id', convidadoId);
     }
 
     mostrarResultadoFinal(nome, comparecera);
