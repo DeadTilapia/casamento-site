@@ -623,6 +623,18 @@
   // volta ao site só pra isso). ---
   let presenteEscolhidoDireto = null;
 
+  // Laço de fita desenhado à mão (sem depender de foto nenhuma) — decora
+  // o topo de cada caixinha de presente.
+  const GIFT_BOW_SVG = `
+    <svg viewBox="0 0 64 40" aria-hidden="true">
+      <path class="gift2-laco-fita" d="M32 16 C 20 2, 4 4, 6 14 C 7 22, 20 20, 32 16 Z" />
+      <path class="gift2-laco-fita" d="M32 16 C 44 2, 60 4, 58 14 C 57 22, 44 20, 32 16 Z" />
+      <path class="gift2-laco-rabicho" d="M28 18 L 20 34 L 26 31 L 30 36 Z" />
+      <path class="gift2-laco-rabicho" d="M36 18 L 44 34 L 38 31 L 34 36 Z" />
+      <circle class="gift2-laco-no" cx="32" cy="17" r="5.5" />
+    </svg>
+  `;
+
   function abrirPresentes(nomePreenchido) {
     document.getElementById('presentesModal').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -685,26 +697,17 @@
     }
 
     lista.innerHTML = '';
-    data.forEach(presente => {
-      const imagem = presente.imagem_url || presente.imagem || presente.foto_url || presente.image_url || '';
-
+    data.forEach((presente, indice) => {
       const card = document.createElement('button');
       card.type = 'button';
       card.className = 'gift2' + (presente.escolhido ? ' taken' : '');
 
-      if (imagem) {
-        const img = document.createElement('img');
-        img.className = 'gift2-thumb';
-        img.loading = 'lazy';
-        img.alt = presente.nome || 'Presente';
-        img.src = imagem;
-        card.appendChild(img);
-      } else {
-        const ph = document.createElement('div');
-        ph.className = 'gift2-thumb-ph';
-        ph.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="24" width="40" height="30" rx="2"/><path d="M12 34h40M32 24v30M32 24c-7-11-19-6-15 3 3 6 15 -3 15 -3zm0 0c7-11 19-6 15 3-3 6-15 -3-15 -3z"/></svg>';
-        card.appendChild(ph);
-      }
+      // Sem foto de propósito — cada presente vira uma "caixinha" com laço,
+      // a cor do papel varia entre 3 tons pra dar uma sensação de variedade.
+      const laco = document.createElement('div');
+      laco.className = 'gift2-laco gift2-laco-' + (indice % 3);
+      laco.innerHTML = GIFT_BOW_SVG;
+      card.appendChild(laco);
 
       const body = document.createElement('div');
       body.className = 'gift2-body';

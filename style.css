@@ -921,26 +921,25 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 .gift2.selected { border-color: var(--color-coral-vermillion); }
 .gift2.taken { opacity: 0.45; cursor: not-allowed; }
 .gift2.taken:hover { transform: none; }
-.gift2-thumb {
+.gift2-laco {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  background: var(--color-sage-mist);
-  display: block;
-}
-.gift2-thumb-ph {
-  width: 100%;
-  aspect-ratio: 4 / 3;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #efe6f6, #e7efe3);
+  flex-shrink: 0;
 }
-.gift2-thumb-ph svg {
-  width: 42px; height: 42px;
-  stroke: var(--color-coral-vermillion);
-  fill: none; stroke-width: 1.3;
+.gift2-laco-0 { background: var(--color-blush-canvas); }
+.gift2-laco-1 { background: var(--color-sage-mist); }
+.gift2-laco-2 { background: var(--color-dusty-peach); }
+.gift2-laco svg { width: 46px; height: auto; overflow: visible; }
+.gift2-laco-fita, .gift2-laco-rabicho {
+  fill: var(--color-mustard-bloom);
+  stroke: var(--color-lilac-deep);
+  stroke-width: 1;
+  stroke-linejoin: round;
 }
+.gift2-laco-no { fill: var(--color-lilac-deep); }
 .gift2-body {
   padding: 14px 16px 18px;
   display: flex;
