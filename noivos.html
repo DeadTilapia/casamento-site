@@ -329,7 +329,7 @@
     const { data, error } = await sb.from('convidados').select('*').order('ordem', { ascending: true, nullsFirst: false }).order('nome');
 
     if (error) {
-      tbody.innerHTML = '<tr><td colspan="10">Não foi possível carregar a lista. Verifique se a tabela "convidados" já existe no Supabase.</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="10">${escapeHtml(mensagemErro(error, 'carregar_convidados'))}</td></tr>`;
       document.getElementById('guestsSummary').innerHTML = '';
       return;
     }
@@ -451,7 +451,7 @@
     const ordem = ordemValor === '' ? null : parseInt(ordemValor) || 0;
 
     const { error } = await sb.from('convidados').insert({ nome, lado, adultos, criancas, observacoes, ordem, status: 'pendente' });
-    if (error) { alert('Não foi possível adicionar o convidado.'); return; }
+    if (error) { alert(mensagemErro(error, 'adicionar_convidado')); return; }
 
     document.getElementById('novoNome').value = '';
     document.getElementById('novoObs').value = '';
@@ -464,7 +464,7 @@
 
   async function atualizarConvidado(id, campo, valor) {
     const { error } = await sb.from('convidados').update({ [campo]: valor }).eq('id', id);
-    if (error) { alert('Não foi possível salvar essa alteração.'); return; }
+    if (error) { alert(mensagemErro(error, 'atualizar_convidado')); return; }
 
     const item = cacheConvidados.find(c => c.id === id);
     if (item) item[campo] = valor;
@@ -474,7 +474,7 @@
   async function removerConvidado(id) {
     if (!confirm('Remover esse convidado da lista?')) return;
     const { error } = await sb.from('convidados').delete().eq('id', id);
-    if (error) { alert('Não foi possível remover.'); return; }
+    if (error) { alert(mensagemErro(error, 'remover_convidado')); return; }
     carregarConvidados();
   }
 
@@ -561,9 +561,11 @@
       dadosConvidado.telefone = conf.telefone;
     }
     if (Object.keys(dadosConvidado).length > 0) {
-      await sb.from('convidados').update(dadosConvidado).eq('id', conf.convidado_id);
+      const { error: erroConvidado } = await sb.from('convidados').update(dadosConvidado).eq('id', conf.convidado_id);
+      if (erroConvidado) { alert(mensagemErro(erroConvidado, 'aplicar_confirmacao')); return; }
     }
-    await sb.from('confirmacoes').update({ aplicado: true }).eq('id', confirmacaoId);
+    const { error: erroAplicar } = await sb.from('confirmacoes').update({ aplicado: true }).eq('id', confirmacaoId);
+    if (erroAplicar) { alert(mensagemErro(erroAplicar, 'aplicar_confirmacao')); return; }
     carregarConvidados();
   }
 
@@ -575,7 +577,7 @@
     const conf = cacheConfirmacoesSemVinculo.find(c => c.id === confirmacaoId);
 
     const { error } = await sb.from('confirmacoes').update({ convidado_id: convidadoId, aplicado: true }).eq('id', confirmacaoId);
-    if (error) { alert('Não foi possível vincular.'); return; }
+    if (error) { alert(mensagemErro(error, 'vincular_confirmacao')); return; }
 
     // vai_comparecer null = só mandou presente, sem responder o RSVP — nesse
     // caso não mexe no status de presença do convidado, só vincula o registro.
@@ -593,7 +595,8 @@
       dadosConvidado.telefone = conf.telefone;
     }
     if (Object.keys(dadosConvidado).length > 0) {
-      await sb.from('convidados').update(dadosConvidado).eq('id', convidadoId);
+      const { error: erroConvidado } = await sb.from('convidados').update(dadosConvidado).eq('id', convidadoId);
+      if (erroConvidado) { alert(mensagemErro(erroConvidado, 'vincular_confirmacao')); return; }
     }
     carregarConvidados();
   }
@@ -614,7 +617,7 @@
       })
       .select();
 
-    if (error || !data || !data[0]) { alert('Não foi possível criar o convidado.'); return; }
+    if (error || !data || !data[0]) { alert(mensagemErro(error, 'criar_convidado')); return; }
 
     await sb.from('confirmacoes').update({ convidado_id: data[0].id, aplicado: true }).eq('id', confirmacaoId);
     carregarConvidados();
@@ -726,7 +729,7 @@
     const { data, error } = await sb.from('padrinhos').select('*').order('ordem');
 
     if (error) {
-      tbody.innerHTML = '<tr><td colspan="4">Não foi possível carregar. Verifique se a tabela "padrinhos" já existe no Supabase.</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="4">${escapeHtml(mensagemErro(error, 'carregar_padrinhos'))}</td></tr>`;
       return;
     }
 
@@ -767,7 +770,7 @@
       nome_madrinha: nomeMadrinha || null,
       ordem,
     });
-    if (error) { alert('Não foi possível adicionar.'); return; }
+    if (error) { alert(mensagemErro(error, 'adicionar_padrinho')); return; }
 
     document.getElementById('novoPadrinhoNome').value = '';
     document.getElementById('novaMadrinhaNome').value = '';
@@ -777,7 +780,7 @@
 
   async function atualizarPadrinho(id, campo, valor) {
     const { error } = await sb.from('padrinhos').update({ [campo]: valor === '' ? null : valor }).eq('id', id);
-    if (error) { alert('Não foi possível salvar essa alteração.'); return; }
+    if (error) { alert(mensagemErro(error, 'atualizar_padrinho')); return; }
     const item = cachePadrinhos.find(p => p.id === id);
     if (item) item[campo] = valor;
   }
@@ -785,7 +788,7 @@
   async function removerPadrinho(id) {
     if (!confirm('Remover esse casal da lista?')) return;
     const { error } = await sb.from('padrinhos').delete().eq('id', id);
-    if (error) { alert('Não foi possível remover.'); return; }
+    if (error) { alert(mensagemErro(error, 'remover_padrinho')); return; }
     carregarPadrinhos();
   }
 
@@ -808,7 +811,7 @@
   async function carregarMesas() {
     const { data, error } = await sb.from('convidados').select('id, nome, adultos, criancas, mesa').order('ordem', { ascending: true, nullsFirst: false }).order('nome');
     if (error) {
-      document.getElementById('mesasPoolList').innerHTML = '<p class="mesas-pool-empty">Não foi possível carregar os convidados.</p>';
+      document.getElementById('mesasPoolList').innerHTML = `<p class="mesas-pool-empty">${escapeHtml(mensagemErro(error, 'carregar_mesas'))}</p>`;
       return;
     }
 

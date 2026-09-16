@@ -31,6 +31,45 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;');
 }
 
+// --- Mensagens de erro amigáveis ---
+// Traduz o código técnico que o Supabase/Postgres devolve pra uma frase que
+// explica o que aconteceu de verdade, em vez de um "algo deu errado" genérico.
+// O código original fica entre parênteses no final, só pra facilitar suporte
+// caso o erro se repita e precise ser reportado.
+const MENSAGENS_ERRO_PADRAO = {
+  '23503': 'Esse registro está vinculado a outro (por exemplo, uma resposta já registrada) e por isso não pode ser removido ou alterado assim.',
+  '23505': 'Já existe um registro igual a esse — parece estar duplicado.',
+  '23502': 'Faltou preencher um campo obrigatório.',
+  '22P02': 'Um dos valores digitados não é válido.',
+  '42501': 'Sem permissão pra fazer isso. Confira se ainda está logado.',
+  'PGRST301': 'Sua sessão expirou. Faça login de novo.',
+  'PGRST116': 'Esse registro não foi encontrado — pode já ter sido alterado ou removido em outra aba.',
+};
+
+// Mensagens específicas por ação, usadas quando a genérica acima não é clara
+// o suficiente pro contexto (ex: "está vinculado a outro" fica mais claro
+// falando exatamente do que se trata em cada tela).
+const MENSAGENS_ERRO_CONTEXTO = {
+  remover_convidado: {
+    '23503': 'Essa pessoa já tem respostas registradas (RSVP ou presente escolhido) vinculadas a ela, então não dá pra remover assim. Desvincule as respostas dela primeiro, se ainda quiser remover.',
+  },
+};
+
+function mensagemErro(error, contexto) {
+  if (!error) return 'Algo deu errado. Tente novamente em instantes.';
+
+  const codigo = error.code || '';
+  const mensagemOriginal = String(error.message || '').toLowerCase();
+
+  if (!codigo && (mensagemOriginal.includes('fetch') || mensagemOriginal.includes('network'))) {
+    return 'Não foi possível conectar. Verifique sua internet e tente de novo.';
+  }
+
+  const especifica = contexto && MENSAGENS_ERRO_CONTEXTO[contexto] && MENSAGENS_ERRO_CONTEXTO[contexto][codigo];
+  const texto = especifica || MENSAGENS_ERRO_PADRAO[codigo] || 'Algo deu errado ao salvar. Tente novamente em instantes.';
+  return codigo ? `${texto} (código ${codigo})` : texto;
+}
+
 // --- Dados do Pix (tela de pagamento do RSVP, em index.html) ---
 const PIX_CHAVE = '74311276-7c26-4d7a-9cf1-d4410f2a4ccb';
 const PIX_NOME = 'ALEXANDRE ERCOLIN';

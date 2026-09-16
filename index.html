@@ -676,7 +676,7 @@
       .order('nome', { ascending: true });
 
     if (error) {
-      lista.innerHTML = '<p>Não foi possível carregar a lista agora. Tente novamente em instantes.</p>';
+      lista.innerHTML = `<p>${escapeHtml(mensagemErro(error, 'carregar_presentes'))}</p>`;
       return;
     }
     if (!data || data.length === 0) {
@@ -782,8 +782,13 @@
     btn.textContent = 'Confirmar escolha';
 
     if (erroPresente || !presenteConfirmado) {
-      // outra pessoa escolheu esse presente entre a listagem e a confirmação
-      document.getElementById('giftError').classList.add('show');
+      const caixaErro = document.getElementById('giftError');
+      // erroPresente = falha de verdade (rede, permissão etc). Sem erro mas sem
+      // presente = a corrida foi perdida: outra pessoa escolheu antes.
+      caixaErro.textContent = erroPresente
+        ? mensagemErro(erroPresente, 'escolher_presente')
+        : 'Ah, alguém escolheu esse presente antes de você. Dá uma olhada nos que ainda estão livres. 💛';
+      caixaErro.classList.add('show');
       carregarPresentesDireto();
       return;
     }
@@ -877,7 +882,7 @@
     btn.textContent = comparecera ? 'Confirmar presença' : 'Enviar resposta';
 
     if (erroConfirmacao) {
-      alert('Algo deu errado ao confirmar. Tente novamente em instantes.');
+      alert(mensagemErro(erroConfirmacao, 'enviar_confirmacao'));
       return;
     }
 
