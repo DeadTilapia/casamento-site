@@ -1,84 +1,143 @@
 COMO USAR ESSA PASTA
 
-Coloque aqui dentro as fotos dos 60 presentes (uma foto por presente).
-Nomeie cada arquivo parecido com o nome do presente na lista abaixo —
-não precisa ser idêntico, é só pra eu conseguir identificar qual é qual.
+Coloque aqui dentro as fotos dos 60 presentes (uma foto por presente),
+salvando cada uma com o nome de arquivo EXATO da lista abaixo.
 
-Exemplos de nome de arquivo:
-  jogo-de-copos.jpg
-  air-fryer.png
-  papel-higienico.jpg
-
-Formato: JPG, PNG ou WebP, tanto faz. Não precisa comprimir, uma foto de
-celular normal já serve.
-
-Depois de subir os arquivos aqui, é só avisar que eu cuido do resto
-(bater cada foto com o presente certo no site).
+Os nomes já estão em .jpg (o formato mais seguro pra web — todo editor
+de foto/celular salva nesse formato sem drama). Se preferir salvar em
+outro formato, só trocar a extensão mantendo o resto do nome igual
+(ex: em vez de "jogo-de-copos.jpg" pode ser "jogo-de-copos.png" ou
+"jogo-de-copos.webp" — eu reconheço qualquer um dos três).
 
 ------------------------------------------------------------
-LISTA DOS 60 PRESENTES
+NOMES DOS 60 ARQUIVOS
 ------------------------------------------------------------
 
-Jogo de copos
-Papel higiênico pro primeiro dia de casados
-Jogo de taças
-Kit de utensílios de cozinha
-Jogo de toalhas de mesa
-Jogo de pratos
-Kit de potes para cozinha
-Jogo de facas
-Frigideira
-Toalhas de banho
-Jogo de talheres
-Kit de potes herméticos organizadores
-Jogo de almofadas decorativas
-Sanduicheira
-Quadros decorativos para casa
-Jogo de cama
-Panela
-Kit de toalhas
-Torradeira
-Espremedor de frutas
-Abajur ou luminária
-Cortina blackout para o quarto
-Café da manhã especial
-Kit de organização para a casa
-Liquidificador
-Kit de banho (roupão + toalhas)
-Kit de taças e bebidas
-Edredom
-Tapete para a sala
-Ferro de passar a vapor
-Cafeteira
-Jogo de roupa de cama completo
-Espelho decorativo
-Aulas de dança pro noivo não pisar no pé da noiva
-Ventilador
-Jogo de jantar
-Jantar romântico para o casal
-Kit de panelas
-Dia de spa pra noiva (aguentar as piadas do noivo)
-Panela de pressão elétrica
-Aspirador de pó
-Smart speaker (assistente de voz)
-Jantar em restaurante especial
-Churrasqueira elétrica
-Air fryer
-Purificador de água
-Contribuição para a lua de mel
-Forno elétrico
-Noite de hotel para o casal
-Cafeteira especial
-Passeio especial para o casal
-Micro-ondas
-Adega
-Contribuição para móveis da casa
-Fim de semana do casal
-Contribuição para eletrodomésticos
-Robô aspirador
-Ajuda de custo pro implante capilar do noivo
-Contribuição para a viagem dos noivos
-Presente especial para o casal
+jogo-de-copos.jpg
+papel-higienico-pro-primeiro-dia-de-casados.jpg
+jogo-de-tacas.jpg
+kit-de-utensilios-de-cozinha.jpg
+jogo-de-toalhas-de-mesa.jpg
+jogo-de-pratos.jpg
+kit-de-potes-para-cozinha.jpg
+jogo-de-facas.jpg
+frigideira.jpg
+toalhas-de-banho.jpg
+jogo-de-talheres.jpg
+kit-de-potes-hermeticos-organizadores.jpg
+jogo-de-almofadas-decorativas.jpg
+sanduicheira.jpg
+quadros-decorativos-para-casa.jpg
+jogo-de-cama.jpg
+panela.jpg
+kit-de-toalhas.jpg
+torradeira.jpg
+espremedor-de-frutas.jpg
+abajur-ou-luminaria.jpg
+cortina-blackout-para-o-quarto.jpg
+cafe-da-manha-especial.jpg
+kit-de-organizacao-para-a-casa.jpg
+liquidificador.jpg
+kit-de-banho-roupao-toalhas.jpg
+kit-de-tacas-e-bebidas.jpg
+edredom.jpg
+tapete-para-a-sala.jpg
+ferro-de-passar-a-vapor.jpg
+cafeteira.jpg
+jogo-de-roupa-de-cama-completo.jpg
+espelho-decorativo.jpg
+aulas-de-danca-pro-noivo-nao-pisar-no-pe-da-noiva.jpg
+ventilador.jpg
+jogo-de-jantar.jpg
+jantar-romantico-para-o-casal.jpg
+kit-de-panelas.jpg
+dia-de-spa-pra-noiva-aguentar-as-piadas-do-noivo.jpg
+panela-de-pressao-eletrica.jpg
+aspirador-de-po.jpg
+smart-speaker-assistente-de-voz.jpg
+jantar-em-restaurante-especial.jpg
+churrasqueira-eletrica.jpg
+air-fryer.jpg
+purificador-de-agua.jpg
+contribuicao-para-a-lua-de-mel.jpg
+forno-eletrico.jpg
+noite-de-hotel-para-o-casal.jpg
+cafeteira-especial.jpg
+passeio-especial-para-o-casal.jpg
+micro-ondas.jpg
+adega.jpg
+contribuicao-para-moveis-da-casa.jpg
+fim-de-semana-do-casal.jpg
+contribuicao-para-eletrodomesticos.jpg
+robo-aspirador.jpg
+ajuda-de-custo-pro-implante-capilar-do-noivo.jpg
+contribuicao-para-a-viagem-dos-noivos.jpg
+presente-especial-para-o-casal.jpg
+
+------------------------------------------------------------
+Cada linha acima corresponde a um presente da lista, na mesma ordem:
+------------------------------------------------------------
+
+jogo-de-copos.jpg -> Jogo de copos
+papel-higienico-pro-primeiro-dia-de-casados.jpg -> Papel higiênico pro primeiro dia de casados
+jogo-de-tacas.jpg -> Jogo de taças
+kit-de-utensilios-de-cozinha.jpg -> Kit de utensílios de cozinha
+jogo-de-toalhas-de-mesa.jpg -> Jogo de toalhas de mesa
+jogo-de-pratos.jpg -> Jogo de pratos
+kit-de-potes-para-cozinha.jpg -> Kit de potes para cozinha
+jogo-de-facas.jpg -> Jogo de facas
+frigideira.jpg -> Frigideira
+toalhas-de-banho.jpg -> Toalhas de banho
+jogo-de-talheres.jpg -> Jogo de talheres
+kit-de-potes-hermeticos-organizadores.jpg -> Kit de potes herméticos organizadores
+jogo-de-almofadas-decorativas.jpg -> Jogo de almofadas decorativas
+sanduicheira.jpg -> Sanduicheira
+quadros-decorativos-para-casa.jpg -> Quadros decorativos para casa
+jogo-de-cama.jpg -> Jogo de cama
+panela.jpg -> Panela
+kit-de-toalhas.jpg -> Kit de toalhas
+torradeira.jpg -> Torradeira
+espremedor-de-frutas.jpg -> Espremedor de frutas
+abajur-ou-luminaria.jpg -> Abajur ou luminária
+cortina-blackout-para-o-quarto.jpg -> Cortina blackout para o quarto
+cafe-da-manha-especial.jpg -> Café da manhã especial
+kit-de-organizacao-para-a-casa.jpg -> Kit de organização para a casa
+liquidificador.jpg -> Liquidificador
+kit-de-banho-roupao-toalhas.jpg -> Kit de banho (roupão + toalhas)
+kit-de-tacas-e-bebidas.jpg -> Kit de taças e bebidas
+edredom.jpg -> Edredom
+tapete-para-a-sala.jpg -> Tapete para a sala
+ferro-de-passar-a-vapor.jpg -> Ferro de passar a vapor
+cafeteira.jpg -> Cafeteira
+jogo-de-roupa-de-cama-completo.jpg -> Jogo de roupa de cama completo
+espelho-decorativo.jpg -> Espelho decorativo
+aulas-de-danca-pro-noivo-nao-pisar-no-pe-da-noiva.jpg -> Aulas de dança pro noivo não pisar no pé da noiva
+ventilador.jpg -> Ventilador
+jogo-de-jantar.jpg -> Jogo de jantar
+jantar-romantico-para-o-casal.jpg -> Jantar romântico para o casal
+kit-de-panelas.jpg -> Kit de panelas
+dia-de-spa-pra-noiva-aguentar-as-piadas-do-noivo.jpg -> Dia de spa pra noiva (aguentar as piadas do noivo)
+panela-de-pressao-eletrica.jpg -> Panela de pressão elétrica
+aspirador-de-po.jpg -> Aspirador de pó
+smart-speaker-assistente-de-voz.jpg -> Smart speaker (assistente de voz)
+jantar-em-restaurante-especial.jpg -> Jantar em restaurante especial
+churrasqueira-eletrica.jpg -> Churrasqueira elétrica
+air-fryer.jpg -> Air fryer
+purificador-de-agua.jpg -> Purificador de água
+contribuicao-para-a-lua-de-mel.jpg -> Contribuição para a lua de mel
+forno-eletrico.jpg -> Forno elétrico
+noite-de-hotel-para-o-casal.jpg -> Noite de hotel para o casal
+cafeteira-especial.jpg -> Cafeteira especial
+passeio-especial-para-o-casal.jpg -> Passeio especial para o casal
+micro-ondas.jpg -> Micro-ondas
+adega.jpg -> Adega
+contribuicao-para-moveis-da-casa.jpg -> Contribuição para móveis da casa
+fim-de-semana-do-casal.jpg -> Fim de semana do casal
+contribuicao-para-eletrodomesticos.jpg -> Contribuição para eletrodomésticos
+robo-aspirador.jpg -> Robô aspirador
+ajuda-de-custo-pro-implante-capilar-do-noivo.jpg -> Ajuda de custo pro implante capilar do noivo
+contribuicao-para-a-viagem-dos-noivos.jpg -> Contribuição para a viagem dos noivos
+presente-especial-para-o-casal.jpg -> Presente especial para o casal
 
 ------------------------------------------------------------
 Itens de "experiência" (jantar romântico, noite de hotel, fim de semana
@@ -89,3 +148,5 @@ hotel, praia etc.) só pra dar uma cara bonita no card.
 Os 4 de zoeira (papel higiênico, aulas de dança, dia de spa, implante
 capilar) podem ter uma foto engraçada/meme, ou ficar sem foto — o card
 funciona bem só com o texto também.
+
+Depois de subir os arquivos aqui, é só avisar que eu cuido do resto.
