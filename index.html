@@ -715,6 +715,14 @@
 
       const valorFormatado = formatarValor(presente.valor);
       if (valorFormatado) {
+        // No modo "compra por conta própria" o valor é só uma referência —
+        // o preço real depende de onde a pessoa for comprar.
+        if (modoPresenteEscolhido === 'fisico') {
+          const rotulo = document.createElement('div');
+          rotulo.className = 'gift2-value-label';
+          rotulo.textContent = 'Valor estimado';
+          body.appendChild(rotulo);
+        }
         const valor = document.createElement('div');
         valor.className = 'gift2-value';
         valor.textContent = valorFormatado;

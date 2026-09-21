@@ -997,6 +997,13 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 }
 .gift2-name { font-weight: 500; font-size: 15px; }
 .gift2-desc { font-size: 13px; opacity: 0.7; line-height: 1.5; }
+.gift2-value-label {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-top: 2px;
+}
 .gift2-value {
   font-size: 14px;
   font-weight: 600;
