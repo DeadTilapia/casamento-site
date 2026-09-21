@@ -892,6 +892,54 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   margin-top: 14px;
 }
 
+/* ESCOLHA DE MODO: PIX OU PRESENTE COMPRADO POR FORA */
+.modo-presente-grid {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  margin: 28px 0 8px;
+}
+.modo-presente-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 2px solid var(--color-sage-mist);
+  border-radius: 18px;
+  background: var(--color-pure-white);
+  cursor: pointer;
+  font-family: var(--font-body);
+  color: var(--color-ink-navy);
+  text-align: center;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.modo-presente-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-coral-vermillion);
+  box-shadow: 0 8px 20px rgba(106, 63, 163, 0.12);
+}
+.modo-presente-emoji { font-size: 36px; line-height: 1; }
+.modo-presente-titulo {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-lilac-deep);
+}
+.modo-presente-desc { font-size: 12.5px; opacity: 0.72; line-height: 1.5; }
+.modo-presente-ou {
+  align-self: center;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  font-family: var(--font-body);
+}
+@media (max-width: 480px) {
+  .modo-presente-grid { flex-direction: column; }
+}
+
 /* GRID DE PRESENTES (tela própria) */
 .gifts-grid {
   display: grid;

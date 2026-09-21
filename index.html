@@ -381,7 +381,32 @@
       <h3 class="flow-title">Quem está mandando?</h3>
       <p class="flow-lead">Só pra sabermos a quem agradecer. 💜</p>
       <input type="text" class="modal-input" id="presenteNome" placeholder="Seu nome (como está no convite)">
-      <button class="btn-solid" onclick="irParaEscolherPresente()">Continuar</button>
+      <button class="btn-solid" onclick="irParaEscolherModo()">Continuar</button>
+    </div>
+  </div>
+
+  <!-- ETAPA 1.5: PIX OU PRESENTE COMPRADO POR FORA -->
+  <div class="flow-step" id="presenteStepModo">
+    <div class="flow-narrow">
+      <div class="flow-eyebrow">Presentes</div>
+      <h3 class="flow-title">Como prefere presentear?</h3>
+      <p class="flow-lead">Escolha um jeito — os dois são igualmente especiais pra gente. 💜</p>
+    </div>
+    <div class="modo-presente-grid">
+      <button type="button" class="modo-presente-card" onclick="escolherModoPresente('pix')">
+        <span class="modo-presente-emoji">💳</span>
+        <span class="modo-presente-titulo">Pix</span>
+        <span class="modo-presente-desc">Escolha um presente da lista e pague a gente direto por aqui, sem sair do site.</span>
+      </button>
+      <span class="modo-presente-ou">ou</span>
+      <button type="button" class="modo-presente-card" onclick="escolherModoPresente('fisico')">
+        <span class="modo-presente-emoji">🎁</span>
+        <span class="modo-presente-titulo">Presente</span>
+        <span class="modo-presente-desc">Escolha um presente da lista, compre por conta própria e entregue pra gente.</span>
+      </button>
+    </div>
+    <div class="flow-actions" style="justify-content:flex-start">
+      <button class="btn-text" onclick="mostrarPresenteStep('presenteStep1')">Voltar</button>
     </div>
   </div>
 
@@ -397,7 +422,7 @@
       </div>
     </div>
     <div class="flow-actions">
-      <button class="btn-text" onclick="mostrarPresenteStep('presenteStep1')">Voltar</button>
+      <button class="btn-text" onclick="mostrarPresenteStep('presenteStepModo')">Voltar</button>
       <button class="btn-solid" id="btnConfirmarPresente" onclick="confirmarEscolhaPresente()" disabled>Confirmar escolha</button>
     </div>
   </div>
@@ -579,6 +604,7 @@
   // presente sem precisar confirmar presença (ou pra quem já confirmou e
   // volta ao site só pra isso). ---
   let presenteEscolhidoDireto = null;
+  let modoPresenteEscolhido = null; // 'pix' (paga por aqui) ou 'fisico' (compra por fora e entrega)
 
   // Laço de fita desenhado à mão (sem depender de foto nenhuma) — decora
   // o topo de cada caixinha de presente.
@@ -598,9 +624,10 @@
     document.getElementById('presenteNome').value = nomePreenchido || '';
     document.getElementById('giftError').classList.remove('show');
     presenteEscolhidoDireto = null;
+    modoPresenteEscolhido = null;
     document.getElementById('btnConfirmarPresente').disabled = true;
     if (nomePreenchido) {
-      irParaEscolherPresente();
+      irParaEscolherModo();
     } else {
       mostrarPresenteStep('presenteStep1');
     }
@@ -620,14 +647,19 @@
   }
 
   function mostrarPresenteStep(id) {
-    ['presenteStep1', 'presenteStep2', 'presenteStep3', 'presenteStep4'].forEach(s => document.getElementById(s).classList.remove('active'));
+    ['presenteStep1', 'presenteStepModo', 'presenteStep2', 'presenteStep3', 'presenteStep4'].forEach(s => document.getElementById(s).classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.getElementById('presentesModal').scrollTo(0, 0);
   }
 
-  function irParaEscolherPresente() {
+  function irParaEscolherModo() {
     const nome = document.getElementById('presenteNome').value.trim();
     if (!nome) { alert('Digite seu nome pra continuar.'); return; }
+    mostrarPresenteStep('presenteStepModo');
+  }
+
+  function escolherModoPresente(modo) {
+    modoPresenteEscolhido = modo;
     mostrarPresenteStep('presenteStep2');
     carregarPresentesDireto();
   }
@@ -750,6 +782,15 @@
         : 'Ah, alguém escolheu esse presente antes de você. Dá uma olhada nos que ainda estão livres. 💛';
       caixaErro.classList.add('show');
       carregarPresentesDireto();
+      return;
+    }
+
+    if (modoPresenteEscolhido === 'fisico') {
+      // Sem Pix: já reservamos o presente pra essa pessoa, só falta avisar
+      // que ela vai trazer/entregar por conta própria.
+      document.getElementById('agradecimentoTexto').textContent =
+        `Combinado! Separamos "${presente.nome}" pra você 🎁 Pode trazer no dia do casamento ou combinar a entrega com a gente antes — mal podemos esperar! 💜`;
+      mostrarPresenteStep('presenteStep4');
       return;
     }
 
