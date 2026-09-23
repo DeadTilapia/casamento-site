@@ -1124,7 +1124,11 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   line-height: 1.7;
 }
 .guests-table-wrap { overflow-x: auto; border: 1px solid var(--color-sage-mist); border-radius: 12px; background: var(--color-pure-white); }
-.guests-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 720px; }
+/* width:max-content deixa cada coluna ocupar o espaço que o conteúdo pede de
+   verdade (em vez de forçar tudo a caber em 100% e espremer os campos uns
+   em cima dos outros); quando isso passa da largura da tela, o wrap acima
+   rola pro lado. */
+.guests-table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 13px; }
 .guests-table th {
   text-align: left;
   font-size: 11px;
@@ -1138,7 +1142,8 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 .guests-table td { padding: 6px 12px; border-bottom: 1px solid var(--color-sage-mist); vertical-align: middle; }
 .guests-table tr:last-child td { border-bottom: none; }
 .guests-table input, .guests-table select {
-  width: 100%;
+  width: auto;
+  min-width: 100px;
   padding: 6px 8px;
   border: 1px solid transparent;
   border-radius: 6px;
@@ -1153,7 +1158,8 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   background: var(--color-blush-canvas);
   outline: none;
 }
-.guests-table input[type=number] { width: 56px; }
+.guests-table input[type=number] { width: 56px; min-width: 56px; }
+.guests-table td:nth-child(9) input { min-width: 160px; }
 .guests-remove {
   background: none;
   border: none;
