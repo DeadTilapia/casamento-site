@@ -405,7 +405,7 @@
         <span class="modo-presente-desc">Escolha um presente da lista, compre por conta própria e entregue pra gente.</span>
       </button>
     </div>
-    <div class="flow-actions" style="justify-content:flex-start">
+    <div class="flow-actions flow-actions--start">
       <button class="btn-text" onclick="mostrarPresenteStep('presenteStep1')">Voltar</button>
     </div>
   </div>
@@ -422,7 +422,7 @@
       </div>
     </div>
     <div class="flow-actions">
-      <button class="btn-text" onclick="mostrarPresenteStep('presenteStepModo')">Voltar</button>
+      <button class="btn-text" id="btnVoltarPresenteStep2" onclick="mostrarPresenteStep('presenteStepModo')">Voltar</button>
       <button class="btn-solid" id="btnConfirmarPresente" onclick="confirmarEscolhaPresente()" disabled>Confirmar escolha</button>
     </div>
   </div>
@@ -605,6 +605,9 @@
   // volta ao site só pra isso). ---
   let presenteEscolhidoDireto = null;
   let modoPresenteEscolhido = null; // 'pix' (paga por aqui) ou 'fisico' (compra por fora e entrega)
+  let presentesCache = null;
+  let presentesEpoch = 0;
+  let cargaPresentesPromise = null;
 
   // Laço de fita desenhado à mão (sem depender de foto nenhuma) — decora
   // o topo de cada caixinha de presente.
@@ -625,6 +628,9 @@
     document.getElementById('giftError').classList.remove('show');
     presenteEscolhidoDireto = null;
     modoPresenteEscolhido = null;
+    presentesCache = null;
+    cargaPresentesPromise = null;
+    presentesEpoch++;
     document.getElementById('btnConfirmarPresente').disabled = true;
     if (nomePreenchido) {
       irParaEscolherModo();
@@ -660,26 +666,48 @@
 
   function escolherModoPresente(modo) {
     modoPresenteEscolhido = modo;
+    document.getElementById('giftError').classList.remove('show');
     mostrarPresenteStep('presenteStep2');
     carregarPresentesDireto();
   }
 
+  // A lista de presentes é a mesma nos dois modos (só o rótulo "Valor estimado"
+  // muda) — por isso ela é buscada uma vez por abertura do modal e reaproveitada
+  // ao trocar de modo, em vez de refazer a busca (e arriscar respostas fora de
+  // ordem se a pessoa for e voltar rápido entre Pix e Presente).
   async function carregarPresentesDireto() {
-    const lista = document.getElementById('giftList');
-    lista.innerHTML = '<p>Carregando presentes...</p>';
     presenteEscolhidoDireto = null;
     document.getElementById('btnConfirmarPresente').disabled = true;
 
-    const { data, error } = await sb
-      .from('presentes')
-      .select('*')
-      .order('valor', { ascending: true, nullsFirst: false })
-      .order('nome', { ascending: true });
-
-    if (error) {
-      lista.innerHTML = `<p>${escapeHtml(mensagemErro(error, 'carregar_presentes'))}</p>`;
+    if (presentesCache) {
+      renderizarListaPresentes(presentesCache);
       return;
     }
+
+    document.getElementById('giftList').innerHTML = '<p>Carregando presentes...</p>';
+
+    if (!cargaPresentesPromise) {
+      const epoch = presentesEpoch;
+      cargaPresentesPromise = sb
+        .from('presentes')
+        .select('*')
+        .order('valor', { ascending: true, nullsFirst: false })
+        .order('nome', { ascending: true })
+        .then(({ data, error }) => {
+          cargaPresentesPromise = null;
+          if (epoch !== presentesEpoch) return; // modal foi fechado/reaberto nesse meio tempo
+          if (error) {
+            document.getElementById('giftList').innerHTML = `<p>${escapeHtml(mensagemErro(error, 'carregar_presentes'))}</p>`;
+            return;
+          }
+          presentesCache = data || [];
+          renderizarListaPresentes(presentesCache);
+        });
+    }
+  }
+
+  function renderizarListaPresentes(data) {
+    const lista = document.getElementById('giftList');
     if (!data || data.length === 0) {
       lista.innerHTML = '<p>A lista de presentes ainda está sendo preparada com carinho. Volte em breve! 💛</p>';
       return;
@@ -762,10 +790,16 @@
   async function confirmarEscolhaPresente() {
     if (!presenteEscolhidoDireto) return;
     const presente = presenteEscolhidoDireto;
+    // Snapshot do modo ANTES do await: se a pessoa clicar "Voltar" e trocar de
+    // modo enquanto o RPC ainda está em voo, a tela mostrada no final precisa
+    // continuar batendo com o modo que foi de fato enviado ao banco.
+    const modo = modoPresenteEscolhido;
 
     const btn = document.getElementById('btnConfirmarPresente');
+    const btnVoltar = document.getElementById('btnVoltarPresenteStep2');
     btn.disabled = true;
     btn.textContent = 'Confirmando...';
+    if (btnVoltar) btnVoltar.disabled = true;
 
     const nome = document.getElementById('presenteNome').value.trim();
     const convidadoCorrespondente = listaConvidadosPublica.find(
@@ -777,9 +811,11 @@
       p_presente_id: presente.id,
       p_nome: nome,
       p_convidado_id: convidadoId,
+      p_modo: modo,
     });
 
     btn.textContent = 'Confirmar escolha';
+    if (btnVoltar) btnVoltar.disabled = false;
 
     if (erroPresente || !presenteConfirmado) {
       const caixaErro = document.getElementById('giftError');
@@ -789,16 +825,15 @@
         ? mensagemErro(erroPresente, 'escolher_presente')
         : 'Ah, alguém escolheu esse presente antes de você. Dá uma olhada nos que ainda estão livres. 💛';
       caixaErro.classList.add('show');
+      presentesCache = null; // o "escolhido" desse item mudou de verdade, força buscar de novo
       carregarPresentesDireto();
       return;
     }
 
-    if (modoPresenteEscolhido === 'fisico') {
+    if (modo === 'fisico') {
       // Sem Pix: já reservamos o presente pra essa pessoa, só falta avisar
       // que ela vai trazer/entregar por conta própria.
-      document.getElementById('agradecimentoTexto').textContent =
-        `Combinado! Separamos "${presente.nome}" pra você 🎁 Pode trazer no dia do casamento ou combinar a entrega com a gente antes — mal podemos esperar! 💜`;
-      mostrarPresenteStep('presenteStep4');
+      mostrarAgradecimento(`Combinado! Separamos "${presente.nome}" pra você 🎁 Pode trazer no dia do casamento ou combinar a entrega com a gente antes — mal podemos esperar! 💜`);
       return;
     }
 
@@ -806,11 +841,14 @@
     mostrarPresenteStep('presenteStep3');
   }
 
+  function mostrarAgradecimento(texto) {
+    document.getElementById('agradecimentoTexto').textContent = texto;
+    mostrarPresenteStep('presenteStep4');
+  }
+
   function confirmarEnvioPresente() {
     const nomePresente = presenteEscolhidoDireto ? presenteEscolhidoDireto.nome : 'esse presente';
-    document.getElementById('agradecimentoTexto').textContent =
-      `Muito, muito obrigado por escolher "${nomePresente}" pra gente! Cada gesto de carinho como esse significa muito nessa fase da nossa vida. Já estamos ansiosos pra comemorar com você! 💜`;
-    mostrarPresenteStep('presenteStep4');
+    mostrarAgradecimento(`Muito, muito obrigado por escolher "${nomePresente}" pra gente! Cada gesto de carinho como esse significa muito nessa fase da nossa vida. Já estamos ansiosos pra comemorar com você! 💜`);
   }
 
   function mostrarResultadoFinal(nome, vaiComparecer) {

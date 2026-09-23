@@ -722,7 +722,10 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   gap: 4px;
   text-align: left;
 }
-.presence-qty label {
+.presence-qty label,
+.guests-add label,
+.mesas-toolbar label,
+.gift2-value-label {
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -997,13 +1000,7 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 }
 .gift2-name { font-weight: 500; font-size: 15px; }
 .gift2-desc { font-size: 13px; opacity: 0.7; line-height: 1.5; }
-.gift2-value-label {
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.6;
-  margin-top: 2px;
-}
+.gift2-value-label { font-size: 10px; margin-top: 2px; }
 .gift2-value {
   font-size: 14px;
   font-weight: 600;
@@ -1033,6 +1030,7 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
 .flow-actions .btn-solid,
 .flow-actions .btn-text { margin-top: 0; }
 .flow-actions .btn-text { display: inline-block; }
+.flow-actions--start { justify-content: flex-start; }
 
 .modal-error {
   color: #b3261e;
@@ -1091,7 +1089,6 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   padding: 18px;
 }
 .guests-add .field { display: flex; flex-direction: column; gap: 4px; }
-.guests-add label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
 .guests-add input, .guests-add select {
   padding: 9px 10px;
   border: 1.5px solid var(--color-sage-mist);
@@ -1266,7 +1263,6 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   padding: 16px;
 }
 .mesas-toolbar .field { display: flex; flex-direction: column; gap: 4px; }
-.mesas-toolbar label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
 .mesas-toolbar input[type=number] {
   width: 80px;
   padding: 9px 10px;

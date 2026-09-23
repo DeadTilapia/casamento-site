@@ -348,7 +348,7 @@
 
     const { data: confirmacoes } = await sb
       .from('confirmacoes')
-      .select('convidado_id, telefone, presente_id, criado_em')
+      .select('convidado_id, telefone, presente_id, modo_entrega, criado_em')
       .not('convidado_id', 'is', null)
       .order('criado_em', { ascending: false });
 
@@ -363,8 +363,17 @@
       infoPorConvidado[conf.convidado_id] = {
         telefone: conf.telefone || '',
         presente: conf.presente_id ? (nomePresente[conf.presente_id] || '') : '',
+        modo: conf.modo_entrega || null,
       };
     });
+  }
+
+  // Distingue presente reservado via Pix (esperando pagamento) de presente que
+  // a pessoa vai comprar por conta própria e entregar pessoalmente.
+  function rotuloModoPresente(modo) {
+    if (modo === 'pix') return ' · Pix';
+    if (modo === 'fisico') return ' · vai entregar';
+    return '';
   }
 
   function renderResumoConvidados() {
@@ -431,7 +440,7 @@
           </select>
         </td>
         <td><input value="${escapeHtml(c.telefone || info.telefone || '')}" placeholder="—" onchange="atualizarConvidado('${c.id}','telefone',this.value)"></td>
-        <td>${escapeHtml(info.presente) || '—'}</td>
+        <td>${info.presente ? escapeHtml(info.presente) + rotuloModoPresente(info.modo) : '—'}</td>
         <td><input value="${escapeHtml(c.observacoes)}" onchange="atualizarConvidado('${c.id}','observacoes',this.value)"></td>
         <td><button class="guests-remove" onclick="removerConvidado('${c.id}')">Remover</button></td>
       `;
@@ -487,7 +496,7 @@
 
     const { data, error } = await sb
       .from('confirmacoes')
-      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas, presente_id, telefone, convidado_id')
+      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas, presente_id, modo_entrega, telefone, convidado_id')
       .or('convidado_id.is.null,and(vai_comparecer.not.is.null,aplicado.eq.false)')
       .order('criado_em', { ascending: false });
 
@@ -511,7 +520,7 @@
       const soMandouPresente = conf.vai_comparecer === null && conf.presente_id;
       const nomePresente = conf.presente_id ? (nomePresenteMap[conf.presente_id] || 'presente') : '';
       const tagPresente = conf.presente_id
-        ? `<span class="unlinked-gift-tag">🎁 ${escapeHtml(nomePresente)}${soMandouPresente ? ' — só mandou presente, não respondeu RSVP' : ''}</span>`
+        ? `<span class="unlinked-gift-tag">🎁 ${escapeHtml(nomePresente)}${escapeHtml(rotuloModoPresente(conf.modo_entrega))}${soMandouPresente ? ' — só mandou presente, não respondeu RSVP' : ''}</span>`
         : '';
 
       if (conf.convidado_id) {
