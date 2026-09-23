@@ -302,6 +302,7 @@
 
   let cacheConvidados = [];
   let cacheConfirmacoesSemVinculo = [];
+  let mapaNomePresenteSemVinculo = {};
   let nomesExpandidos = new Set();
 
   function alternarNome(id) {
@@ -510,6 +511,7 @@
     (presentes || []).forEach(p => { nomePresenteMap[p.id] = p.nome; });
 
     cacheConfirmacoesSemVinculo = data;
+    mapaNomePresenteSemVinculo = nomePresenteMap;
     box.style.display = 'block';
 
     const opcoesConvidados = cacheConvidados
@@ -534,6 +536,7 @@
         <div class="unlinked-item">
           <span><strong>${escapeHtml(conf.nome_convidado)}</strong> → bate com <strong>${escapeHtml(nomeConvidado)}</strong> na lista, respondeu: ${resumoResposta}${conf.mensagem ? ' — "' + escapeHtml(conf.mensagem) + '"' : ''}${tagPresente}</span>
           <button class="btn-outline" onclick="aplicarConfirmacaoVinculada('${conf.id}')">Aplicar</button>
+          <button class="guests-remove" onclick="removerConfirmacaoSemVinculo('${conf.id}')">Remover</button>
         </div>
       `;
       }
@@ -547,6 +550,7 @@
         </select>
         <button class="btn-outline" onclick="vincularConfirmacao('${conf.id}')">Vincular</button>
         <button class="btn-outline" onclick="criarConvidadoDeConfirmacao('${conf.id}')">Adicionar como novo</button>
+        <button class="guests-remove" onclick="removerConfirmacaoSemVinculo('${conf.id}')">Remover</button>
       </div>
     `;
     }).join('');
@@ -607,6 +611,33 @@
       const { error: erroConvidado } = await sb.from('convidados').update(dadosConvidado).eq('id', convidadoId);
       if (erroConvidado) { alert(mensagemErro(erroConvidado, 'vincular_confirmacao')); return; }
     }
+    carregarConvidados();
+  }
+
+  // Remove de vez uma resposta da fila (ex: um teste, ou um "engraçadinho" que
+  // ninguém vai vincular). Se tinha presente escolhido, devolve ele pra lista
+  // de disponíveis antes de apagar — senão o presente ficaria travado pra sempre.
+  async function removerConfirmacaoSemVinculo(confirmacaoId) {
+    const conf = cacheConfirmacoesSemVinculo.find(c => c.id === confirmacaoId);
+    if (!conf) return;
+
+    const nomePresente = conf.presente_id ? (mapaNomePresenteSemVinculo[conf.presente_id] || 'o presente escolhido') : null;
+    const avisoPresente = nomePresente
+      ? `\n\nIsso também vai liberar "${nomePresente}" de volta pra lista de presentes disponíveis.`
+      : '';
+    const confirmar = confirm(
+      `Remover de vez a resposta de "${conf.nome_convidado}"?${avisoPresente}\n\nEssa ação não pode ser desfeita.`
+    );
+    if (!confirmar) return;
+
+    if (conf.presente_id) {
+      const { error: erroPresente } = await sb.from('presentes').update({ escolhido: false }).eq('id', conf.presente_id);
+      if (erroPresente) { alert(mensagemErro(erroPresente, 'remover_confirmacao')); return; }
+    }
+
+    const { error: erroRemover } = await sb.from('confirmacoes').delete().eq('id', confirmacaoId);
+    if (erroRemover) { alert(mensagemErro(erroRemover, 'remover_confirmacao')); return; }
+
     carregarConvidados();
   }
 
