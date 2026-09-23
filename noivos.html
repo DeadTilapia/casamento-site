@@ -70,8 +70,8 @@
         <div class="field">
           <label for="novoLado">Lado</label>
           <select id="novoLado">
-            <option value="noivo">Noivo</option>
-            <option value="noiva">Noiva</option>
+            <option value="noivo">Ale</option>
+            <option value="noiva">Alice</option>
             <option value="ambos">Ambos</option>
           </select>
         </div>
@@ -426,8 +426,8 @@
         <td class="guest-name-cell">${renderCelulaNome(c)}</td>
         <td>
           <select onchange="atualizarConvidado('${c.id}','lado',this.value)">
-            <option value="noivo" ${c.lado === 'noivo' ? 'selected' : ''}>Noivo</option>
-            <option value="noiva" ${c.lado === 'noiva' ? 'selected' : ''}>Noiva</option>
+            <option value="noivo" ${c.lado === 'noivo' ? 'selected' : ''}>Ale</option>
+            <option value="noiva" ${c.lado === 'noiva' ? 'selected' : ''}>Alice</option>
             <option value="ambos" ${c.lado === 'ambos' ? 'selected' : ''}>Ambos</option>
           </select>
         </td>
