@@ -110,13 +110,14 @@
               <th>Crianças</th>
               <th>Status</th>
               <th>Telefone</th>
+              <th>Restrição alimentar</th>
               <th>Presente escolhido</th>
               <th>Observações</th>
               <th></th>
             </tr>
           </thead>
           <tbody id="guestsTableBody">
-            <tr><td colspan="10">Carregando...</td></tr>
+            <tr><td colspan="11">Carregando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -411,7 +412,7 @@
   function renderTabelaConvidados() {
     const tbody = document.getElementById('guestsTableBody');
     if (cacheConvidados.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10">Nenhum convidado cadastrado ainda.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11">Nenhum convidado cadastrado ainda.</td></tr>';
       return;
     }
 
@@ -441,6 +442,7 @@
           </select>
         </td>
         <td><input value="${escapeHtml(c.telefone || info.telefone || '')}" placeholder="—" onchange="atualizarConvidado('${c.id}','telefone',this.value)"></td>
+        <td><input class="${c.restricao_alimentar ? 'guests-alerta' : ''}" value="${escapeHtml(c.restricao_alimentar)}" placeholder="—" onchange="atualizarConvidado('${c.id}','restricao_alimentar',this.value)"></td>
         <td>${info.presente ? escapeHtml(info.presente) + rotuloModoPresente(info.modo) : '—'}</td>
         <td><input value="${escapeHtml(c.observacoes)}" onchange="atualizarConvidado('${c.id}','observacoes',this.value)"></td>
         <td><button class="guests-remove" onclick="removerConvidado('${c.id}')">Remover</button></td>
@@ -497,7 +499,7 @@
 
     const { data, error } = await sb
       .from('confirmacoes')
-      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas, presente_id, modo_entrega, telefone, convidado_id')
+      .select('id, nome_convidado, mensagem, criado_em, vai_comparecer, adultos, criancas, presente_id, modo_entrega, telefone, convidado_id, restricao_alimentar')
       .or('convidado_id.is.null,and(vai_comparecer.not.is.null,aplicado.eq.false)')
       .order('criado_em', { ascending: false });
 
@@ -524,6 +526,9 @@
       const tagPresente = conf.presente_id
         ? `<span class="unlinked-gift-tag">🎁 ${escapeHtml(nomePresente)}${escapeHtml(rotuloModoPresente(conf.modo_entrega))}${soMandouPresente ? ' — só mandou presente, não respondeu RSVP' : ''}</span>`
         : '';
+      const tagRestricao = conf.restricao_alimentar
+        ? `<span class="unlinked-restricao-tag">⚠️ Restrição alimentar: ${escapeHtml(conf.restricao_alimentar)}</span>`
+        : '';
 
       if (conf.convidado_id) {
         // Nome bateu automaticamente com alguém da lista — só falta aplicar a resposta.
@@ -534,7 +539,7 @@
           : 'não vai';
         return `
         <div class="unlinked-item">
-          <span><strong>${escapeHtml(conf.nome_convidado)}</strong> → bate com <strong>${escapeHtml(nomeConvidado)}</strong> na lista, respondeu: ${resumoResposta}${conf.mensagem ? ' — "' + escapeHtml(conf.mensagem) + '"' : ''}${tagPresente}</span>
+          <span><strong>${escapeHtml(conf.nome_convidado)}</strong> → bate com <strong>${escapeHtml(nomeConvidado)}</strong> na lista, respondeu: ${resumoResposta}${conf.mensagem ? ' — "' + escapeHtml(conf.mensagem) + '"' : ''}${tagPresente}${tagRestricao}</span>
           <button class="btn-outline" onclick="aplicarConfirmacaoVinculada('${conf.id}')">Aplicar</button>
           <button class="guests-remove" onclick="removerConfirmacaoSemVinculo('${conf.id}')">Remover</button>
         </div>
@@ -543,7 +548,7 @@
 
       return `
       <div class="unlinked-item">
-        <span><strong>${escapeHtml(conf.nome_convidado)}</strong>${conf.mensagem ? ' — "' + escapeHtml(conf.mensagem) + '"' : ''}${tagPresente}</span>
+        <span><strong>${escapeHtml(conf.nome_convidado)}</strong>${conf.mensagem ? ' — "' + escapeHtml(conf.mensagem) + '"' : ''}${tagPresente}${tagRestricao}</span>
         <select id="vinc-${conf.id}">
           <option value="">Vincular a...</option>
           ${opcoesConvidados}
@@ -572,6 +577,9 @@
     const convidadoAtual = cacheConvidados.find(cv => cv.id === conf.convidado_id);
     if (conf.telefone && convidadoAtual && !convidadoAtual.telefone) {
       dadosConvidado.telefone = conf.telefone;
+    }
+    if (conf.restricao_alimentar) {
+      dadosConvidado.restricao_alimentar = conf.restricao_alimentar;
     }
     if (Object.keys(dadosConvidado).length > 0) {
       const { error: erroConvidado } = await sb.from('convidados').update(dadosConvidado).eq('id', conf.convidado_id);
@@ -606,6 +614,9 @@
     const convidadoAtual = cacheConvidados.find(cv => cv.id === convidadoId);
     if (conf && conf.telefone && convidadoAtual && !convidadoAtual.telefone) {
       dadosConvidado.telefone = conf.telefone;
+    }
+    if (conf && conf.restricao_alimentar) {
+      dadosConvidado.restricao_alimentar = conf.restricao_alimentar;
     }
     if (Object.keys(dadosConvidado).length > 0) {
       const { error: erroConvidado } = await sb.from('convidados').update(dadosConvidado).eq('id', convidadoId);
@@ -654,6 +665,7 @@
         criancas: conf.vai_comparecer ? (conf.criancas ?? 0) : 0,
         status: conf.vai_comparecer === false ? 'recusado' : (conf.vai_comparecer === true ? 'confirmado' : 'pendente'),
         telefone: conf.telefone || null,
+        restricao_alimentar: conf.restricao_alimentar || null,
       })
       .select();
 

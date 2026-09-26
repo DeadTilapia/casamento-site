@@ -337,6 +337,16 @@
     <div class="flow-narrow">
       <div class="flow-eyebrow">Quase lá</div>
       <h3 class="flow-title">Deixe um recadinho</h3>
+
+      <div id="blocoRestricao" style="display:none">
+        <p class="flow-lead" style="margin-bottom:8px">Alguém do grupo tem alguma restrição ou alergia alimentar?</p>
+        <div class="presence-toggle">
+          <button type="button" class="presence-btn" id="btnRestricaoSim" onclick="selecionarRestricao(true)">Sim</button>
+          <button type="button" class="presence-btn" id="btnRestricaoNao" onclick="selecionarRestricao(false)">Não</button>
+        </div>
+        <textarea class="modal-textarea" id="inputRestricao" style="display:none; margin-top:10px" placeholder="Conta pra gente (ex: alergia a amendoim, vegetariano, sem lactose...)"></textarea>
+      </div>
+
       <p class="flow-lead">É opcional, mas a gente vai adorar ler. 💜</p>
       <textarea class="modal-textarea" id="inputMensagem" placeholder="Um recadinho pros noivos..."></textarea>
       <button class="btn-solid" id="btnConfirmar" onclick="enviarConfirmacao()">Confirmar presença</button>
@@ -553,12 +563,20 @@
   }
 
   let comparecera = null;
+  let temRestricao = null;
 
   function selecionarPresenca(vai) {
     comparecera = vai;
     document.getElementById('btnPresencaSim').classList.toggle('active', vai === true);
     document.getElementById('btnPresencaNao').classList.toggle('active', vai === false);
     document.getElementById('presenceQty').style.display = vai ? 'flex' : 'none';
+  }
+
+  function selecionarRestricao(tem) {
+    temRestricao = tem;
+    document.getElementById('btnRestricaoSim').classList.toggle('active', tem === true);
+    document.getElementById('btnRestricaoNao').classList.toggle('active', tem === false);
+    document.getElementById('inputRestricao').style.display = tem ? 'block' : 'none';
   }
 
   function resetarModal() {
@@ -568,10 +586,16 @@
     document.getElementById('inputMensagem').value = '';
     document.getElementById('inputAdultos').value = '1';
     document.getElementById('inputCriancas').value = '0';
+    document.getElementById('inputRestricao').value = '';
     comparecera = null;
+    temRestricao = null;
     document.getElementById('btnPresencaSim').classList.remove('active');
     document.getElementById('btnPresencaNao').classList.remove('active');
     document.getElementById('presenceQty').style.display = 'none';
+    document.getElementById('btnRestricaoSim').classList.remove('active');
+    document.getElementById('btnRestricaoNao').classList.remove('active');
+    document.getElementById('inputRestricao').style.display = 'none';
+    document.getElementById('blocoRestricao').style.display = 'none';
   }
 
   function irParaStep2() {
@@ -588,6 +612,7 @@
     if (comparecera === null) { alert('Conta pra gente se você vai poder vir!'); return; }
 
     document.getElementById('btnConfirmar').textContent = comparecera ? 'Confirmar presença' : 'Enviar resposta';
+    document.getElementById('blocoRestricao').style.display = comparecera ? 'block' : 'none';
     mostrarStep('step2');
   }
 
@@ -902,6 +927,15 @@
     const mensagem = document.getElementById('inputMensagem').value.trim();
     const adultos = comparecera ? (parseInt(document.getElementById('inputAdultos').value) || 1) : null;
     const criancas = comparecera ? (parseInt(document.getElementById('inputCriancas').value) || 0) : null;
+
+    const restricaoAlimentar = comparecera && temRestricao
+      ? document.getElementById('inputRestricao').value.trim()
+      : null;
+    if (comparecera && temRestricao && !restricaoAlimentar) {
+      alert('Conta pra gente qual é a restrição, pra gente saber como cuidar disso no cardápio. 💜');
+      return;
+    }
+
     const btn = document.getElementById('btnConfirmar');
     btn.disabled = true;
     btn.textContent = 'Enviando...';
@@ -923,6 +957,7 @@
         vai_comparecer: comparecera,
         adultos,
         criancas,
+        restricao_alimentar: restricaoAlimentar,
       });
 
     btn.disabled = false;

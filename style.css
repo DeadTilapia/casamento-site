@@ -1208,7 +1208,21 @@ footer svg { width: 34px; height: 34px; fill: none; stroke: var(--color-coral-ve
   color: var(--color-forest-ink);
   font-size: 12px;
 }
+.unlinked-restricao-tag {
+  display: block;
+  margin-top: 4px;
+  color: #a13a3a;
+  font-weight: 600;
+  font-size: 12px;
+}
 .unlinked-item .btn-outline { padding: 6px 14px; font-size: 11px; }
+
+/* Destaca no piscar de olhos quando um convidado tem restrição alimentar cadastrada */
+.guests-table input.guests-alerta {
+  border-color: #a13a3a;
+  background: #f5dcdc;
+  font-weight: 600;
+}
 
 /* ABA MENSAGENS (dashboard de WhatsApp) */
 .msg-group { margin-bottom: 32px; }
